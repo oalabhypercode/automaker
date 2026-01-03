@@ -83,7 +83,11 @@ export function getClaudeConfigDir(): string {
  */
 export function getClaudeCredentialPaths(): string[] {
   const claudeDir = getClaudeConfigDir();
-  return [path.join(claudeDir, '.credentials.json'), path.join(claudeDir, 'credentials.json')];
+  return [
+    path.join(claudeDir, '.credentials.json'),
+    path.join(claudeDir, 'credentials.json'),
+    path.join(claudeDir, 'config.json'),
+  ];
 }
 
 /**
@@ -801,8 +805,13 @@ export async function getClaudeAuthIndicators(): Promise<ClaudeAuthIndicators> {
       const credentials = JSON.parse(content);
       result.hasCredentialsFile = true;
       result.credentials = {
-        hasOAuthToken: !!(credentials.oauth_token || credentials.access_token),
-        hasApiKey: !!credentials.api_key,
+        hasOAuthToken: !!(
+          credentials.oauth_token ||
+          credentials.access_token ||
+          credentials.sessionKey ||
+          credentials.session_key
+        ),
+        hasApiKey: !!(credentials.api_key || credentials.primaryApiKey || credentials.apiKey),
       };
       break;
     } catch {

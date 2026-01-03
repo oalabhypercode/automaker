@@ -16,7 +16,7 @@ import { createServer } from 'http';
 import dotenv from 'dotenv';
 
 import { createEventEmitter, type EventEmitter } from './lib/events.js';
-import { initAllowedPaths } from '@automaker/platform';
+import { initAllowedPaths, getClaudeAuthIndicators } from '@automaker/platform';
 import { authMiddleware, validateWsConnectionToken, checkRawAuthentication } from './lib/auth.js';
 import { requireJsonContentType } from './middleware/require-json-content-type.js';
 import { createAuthRoutes } from './routes/auth/index.js';
@@ -66,10 +66,31 @@ const PORT = parseInt(process.env.PORT || '3008', 10);
 const DATA_DIR = process.env.DATA_DIR || './data';
 const ENABLE_REQUEST_LOGGING = process.env.ENABLE_REQUEST_LOGGING !== 'false'; // Default to true
 
-// Check for required environment variables
-const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY;
+// Check for authentication (API key or CLI auth) asynchronously
+async function checkClaudeAuth() {
+  const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY;
 
-if (!hasAnthropicKey) {
+  if (hasAnthropicKey) {
+    console.log('[Server] ✓ ANTHROPIC_API_KEY detected (API key auth)');
+    return;
+  }
+
+  // Check for CLI authentication
+  try {
+    const indicators = await getClaudeAuthIndicators();
+    if (
+      indicators.hasCredentialsFile ||
+      indicators.hasSettingsFile ||
+      indicators.hasStatsCacheWithActivity ||
+      indicators.hasProjectsSessions
+    ) {
+      console.log('[Server] ✓ Claude CLI authentication detected');
+      return;
+    }
+  } catch (error) {
+    // Ignore errors checking CLI auth
+  }
+
   console.warn(`
 ╔═══════════════════════════════════════════════════════════════════════╗
 ║  ⚠️  WARNING: No Claude authentication configured                      ║
@@ -82,9 +103,10 @@ if (!hasAnthropicKey) {
 ║  Or use the setup wizard in Settings to configure authentication.     ║
 ╚═══════════════════════════════════════════════════════════════════════╝
 `);
-} else {
-  console.log('[Server] ✓ ANTHROPIC_API_KEY detected (API key auth)');
 }
+
+// Run auth check
+checkClaudeAuth();
 
 // Initialize security
 initAllowedPaths();
