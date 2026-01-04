@@ -1438,8 +1438,6 @@ export class HttpApiClient implements ElectronAPI {
           headers?: Record<string, string>;
           enabled?: boolean;
         }>;
-        mcpAutoApproveTools?: boolean;
-        mcpUnrestrictedTools?: boolean;
       };
       error?: string;
     }> => this.get('/api/settings/global'),
