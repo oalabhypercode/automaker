@@ -1,0 +1,49 @@
+{
+  "name": "@automaker/pg-sync",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Postgres Online-Sync functionality for AutoMaker - enables central database synchronization",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./db": {
+      "types": "./dist/db/index.d.ts",
+      "import": "./dist/db/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "automaker",
+    "postgres",
+    "sync",
+    "supabase"
+  ],
+  "author": "AutoMaker Team",
+  "license": "SEE LICENSE IN LICENSE",
+  "engines": {
+    "node": ">=22.0.0 <23.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.3",
+    "typescript": "5.9.3",
+    "rimraf": "^6.0.0"
+  },
+  "peerDependencies": {
+    "@automaker/types": "^1.0.0"
+  }
+}
