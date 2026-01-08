@@ -2,7 +2,7 @@
 
 ULTRATHINK
 
-> **Status:** ⏳ Offen
+> **Status:** ✅ Implementiert
 > **Abhängigkeiten:** Phase 3.1 - 3.4
 > **Geschätzte Komplexität:** Hoch
 
@@ -39,18 +39,18 @@ Ein neuer Settings-Reiter "Kunden-Zugang" im Projekt-Dashboard.
 
 ## 🏛️ Architektur & Datenmodell
 
-### `project_settings` Tabelle (oder JSONB Feld)
+### `projects.settings.publicSettings` (JSONB)
 
-Um flexibel zu bleiben, eignet sich ein JSONB Feld in der `projects` Tabelle oder eine 1:1 Tabelle. Wir nehmen JSONB `public_settings` für Flexibilität.
+Wir nutzen das bestehende JSONB Feld `projects.settings` und hängen dort `publicSettings` an.
 
 ```json
-// projects.public_settings (JSONB)
+// projects.settings.publicSettings (JSONB)
 {
   "theme": "dark",
-  "allow_ticket_creation": true,
-  "show_comments": false,
-  "visible_columns": ["todo", "in_progress", "done"],
-  "intro_message": "Willkommen im Roadmap Board!"
+  "allowTicketCreation": true,
+  "showComments": false,
+  "visibleStatuses": ["todo", "in_progress", "done"],
+  "introMessage": "Willkommen im Roadmap Board!"
 }
 ```
 
@@ -60,7 +60,7 @@ Die Finder-Funktionen (aus Phase 3.3) müssen dieses JSONB lesen und filtern.
 
 ```typescript
 // Pseudocode
-if (!settings.show_comments) {
+if (!settings.showComments) {
   // lade keine Kommentare
 }
 ```
@@ -71,12 +71,15 @@ if (!settings.show_comments) {
 
 ### Konfigurierbare Optionen
 
-| Option                 | Default          | Beschreibung                     |
-| ---------------------- | ---------------- | -------------------------------- |
-| `enabled`              | false            | Ist das Public Board aktiv?      |
-| `allow_create`         | true             | Button "Neues Ticket" anzeigen?  |
-| `show_comments_public` | false            | Öffentliche Kommentare anzeigen? |
-| `visible_statuses`     | ['todo', 'done'] | Welche Spalten werden gezeigt?   |
+| Option                | Default                         | Beschreibung                     |
+| --------------------- | ------------------------------- | -------------------------------- |
+| `allowTicketCreation` | true                            | Button "Neues Ticket" anzeigen?  |
+| `showComments`        | false                           | Öffentliche Kommentare anzeigen? |
+| `visibleStatuses`     | ['todo', 'in_progress', 'done'] | Welche Spalten werden gezeigt?   |
+| `introMessage`        | -                               | Willkommensnachricht (optional)  |
+| `theme`               | 'dark'                          | Theme für das Kunden-Board       |
+
+Hinweis: Public-Board Aktivierung läuft über `projects.customerAccessEnabled` (Phase 3.1).
 
 ### Settings UI (Intern)
 
@@ -91,14 +94,21 @@ if (!settings.show_comments) {
 
 ### 1. DB Schema Update
 
-Datei: `libs/pg-sync/src/db/schema.ts`
+Datei: `libs/pg-sync/src/db/schema/projects.ts`
 
 ```typescript
-export const projects = pgTable('projects', {
+export interface PublicBoardSettings {
+  allowTicketCreation: boolean;
+  showComments: boolean;
+  visibleStatuses: string[];
+  introMessage?: string;
+  theme: 'dark' | 'light';
+}
+
+export interface ProjectSettingsJson {
   // ...
-  publicSettings: jsonb('public_settings').default({}),
-  // ...
-});
+  publicSettings?: PublicBoardSettings;
+}
 ```
 
 ### 2. Action: `updateProjectPublicSettings`
@@ -106,15 +116,14 @@ export const projects = pgTable('projects', {
 Datei: `libs/pg-sync/src/actions/project-actions.ts`
 Implementiert `PATCH` Logic für das JSON.
 
-### 3. UI: `PublicAccessSettingsPanel`
+### 3. Public Board View
 
-Datei: `apps/web/src/components/settings/public-access-settings-panel.tsx`
-Integration in die bestehenden Projekt-Settings.
+Datei: `apps/ui/src/components/public-board/public-board-view.tsx`
+Spalten/Intro-Text reagieren auf `publicSettings` (visibleStatuses, introMessage).
 
 ### 4. Enforcement in Views
 
-Anpassung von `page.tsx` und Findern aus Phase 3.3/3.4, um die Settings zu respektieren.
-Z.B. `createTicket` Button ausblenden, wenn `allow_create: false`.
+Backend-Route respektiert `allowTicketCreation` + `visibleStatuses` (Phase 3.5).
 
 ---
 
@@ -122,26 +131,54 @@ Z.B. `createTicket` Button ausblenden, wenn `allow_create: false`.
 
 ### Neue Dateien
 
-| Datei                                                               | Zweck    | ~Zeilen |
-| ------------------------------------------------------------------- | -------- | ------- |
-| `apps/web/src/components/settings/public-access-settings-panel.tsx` | Admin UI | ~150    |
+Keine neuen Dateien.
 
 ### Updates
 
-| Datei                                         | Zweck                 | ~Zeilen |
-| --------------------------------------------- | --------------------- | ------- |
-| `libs/pg-sync/src/db/schema.ts`               | JSONB Feld            | +5      |
-| `apps/web/src/app/(public)/p/[slug]/page.tsx` | Conditional Rendering | +20     |
-| `libs/pg-sync/src/finders/ticket-finder.ts`   | Filter Logic          | +20     |
+| Datei                                                       | Zweck                                 | ~Zeilen |
+| ----------------------------------------------------------- | ------------------------------------- | ------- |
+| `libs/pg-sync/src/db/schema/projects.ts`                    | PublicBoardSettings + Defaults        | +30     |
+| `libs/pg-sync/src/actions/project-actions.ts`               | update/get Public Settings            | +90     |
+| `libs/pg-sync/src/finders/project-finder.ts`                | publicSettings im PublicProjectData   | +40     |
+| `libs/pg-sync/src/finders/ticket-finder.ts`                 | visibleStatuses Filter                | +15     |
+| `apps/server/src/routes/public-projects/index.ts`           | allowTicketCreation + visibleStatuses | +5      |
+| `apps/ui/src/components/public-board/public-board-view.tsx` | Visible Columns + Intro Message       | +30     |
+| `apps/ui/src/hooks/use-public-project.ts`                   | publicSettings Typen                  | +10     |
+| `libs/pg-sync/src/index.ts`                                 | Exports (Settings + Finder Types)     | +5      |
 
 ---
 
 ## ✅ Abschlusskriterien
 
-- [ ] Projekt-Settings haben einen "Public Access" Tab.
-- [ ] Einstellungen werden in DB gespeichert (JSONB).
-- [ ] Änderungen wirken sich sofort auf das Public Board aus (z.B. Button verschwindet).
-- [ ] Sicherheit: Backend validiert Permissions (API lässt Ticket-Create nicht zu, wenn disabled).
+- [x] Projekt-Settings haben einen "Public Access" Tab. (UI unter /online-sync)
+- [x] Einstellungen werden in DB gespeichert (JSONB).
+- [x] Änderungen wirken sich sofort auf das Public Board aus (visibleStatuses + Intro).
+- [x] Sicherheit: Backend validiert Permissions (Ticket-Create gesperrt, wenn disabled).
+
+---
+
+## 🚀 Implementierungsstand (2026-01-08)
+
+### ✅ Backend + Public View
+
+| Komponente | Datei                                                       | Beschreibung                               |
+| ---------- | ----------------------------------------------------------- | ------------------------------------------ |
+| Schema     | `libs/pg-sync/src/db/schema/projects.ts`                    | PublicBoardSettings + Defaults in settings |
+| Actions    | `libs/pg-sync/src/actions/project-actions.ts`               | update/get Public Settings                 |
+| Finder     | `libs/pg-sync/src/finders/project-finder.ts`                | publicSettings an PublicProjectData        |
+| Finder     | `libs/pg-sync/src/finders/ticket-finder.ts`                 | visibleStatuses Filter für Public Tickets  |
+| API        | `apps/server/src/routes/public-projects/index.ts`           | allowTicketCreation + visibleStatuses      |
+| UI         | `apps/ui/src/components/public-board/public-board-view.tsx` | Sichtbarkeit + Intro Message               |
+
+### ✅ Internes UI (2026-01-08)
+
+| Komponente | Datei                                                           | Beschreibung                               |
+| ---------- | --------------------------------------------------------------- | ------------------------------------------ |
+| Server API | `apps/server/src/routes/pg-sync/index.ts`                       | Interne CRUD-Endpoints für Public Settings |
+| UI Hooks   | `apps/ui/src/hooks/use-online-projects.ts`                      | React Query Hooks für Settings-Verwaltung  |
+| UI Route   | `apps/ui/src/routes/online-sync.tsx`                            | Route für /online-sync                     |
+| UI View    | `apps/ui/src/components/views/online-sync-view.tsx`             | Settings-Panel mit allen Optionen          |
+| Navigation | `apps/ui/src/components/layout/sidebar/hooks/use-navigation.ts` | "Online" Section mit Globe Icon            |
 
 ---
 

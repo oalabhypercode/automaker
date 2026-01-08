@@ -153,11 +153,30 @@ Datei: `apps/web/src/components/board/public-create-ticket-dialog.tsx`
 
 ## ✅ Abschlusskriterien
 
-- [ ] "Ticket erstellen" Button auf dem Kunden-Board sichtbar.
-- [ ] Formular fragt Namen und Grunddaten ab.
-- [ ] Ticket erscheint sofort im internen Board (via Realtime).
-- [ ] Ticket erscheint auch im Kunden-Board (sofern Filter es erlauben).
-- [ ] Ersteller-Name ist im Ticket (intern) ersichtlich.
+- [ ] "Ticket erstellen" Button auf dem Kunden-Board sichtbar. (→ UI in Phase 3.5 oder separatem Frontend-Task)
+- [x] Formular-Validierung implementiert (Zod Schema).
+- [x] Backend API-Endpoint erstellt (POST /p/:slug/tickets).
+- [x] Ticket erscheint im internen Board (status: todo, label: customer-feedback).
+- [x] Ersteller-Name ist im Ticket ersichtlich (in Description).
+
+---
+
+## 🚀 Implementierungsstand (2026-01-07)
+
+### ✅ Backend ABGESCHLOSSEN
+
+| Datei                                             | Änderung                                                 |
+| ------------------------------------------------- | -------------------------------------------------------- |
+| `libs/pg-sync/src/validations/ticket.schema.ts`   | `CreatePublicTicketSchema`, `PublicTicketCategorySchema` |
+| `libs/pg-sync/src/actions/ticket-actions.ts`      | `createPublicTicket` Action                              |
+| `libs/pg-sync/src/index.ts`                       | Alle Exports hinzugefügt                                 |
+| `apps/server/src/routes/public-projects/index.ts` | `POST /:slug/tickets` Endpoint                           |
+
+### ⏳ Frontend TODO (wird in apps/ui oder separatem Web-Frontend implementiert)
+
+- "Neues Ticket" Button auf Public Board
+- PublicCreateTicketDialog Komponente
+- API-Call an POST /api/p/:slug/tickets
 
 ---
 

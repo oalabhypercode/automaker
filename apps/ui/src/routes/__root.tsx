@@ -1,4 +1,5 @@
 import { createRootRoute, Outlet, useLocation, useNavigate } from '@tanstack/react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useState, useCallback, useDeferredValue, useRef } from 'react';
 import { createLogger } from '@automaker/utils/logger';
 import { Sidebar } from '@/components/layout/sidebar';
@@ -26,6 +27,16 @@ import { SandboxRejectionScreen } from '@/components/dialogs/sandbox-rejection-s
 import { LoadingState } from '@/components/ui/loading-state';
 
 const logger = createLogger('RootLayout');
+
+// Create QueryClient outside component to keep it stable across re-renders
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60, // 1 minute
+      retry: 1,
+    },
+  },
+});
 
 function RootLayoutContent() {
   const location = useLocation();
@@ -422,9 +433,11 @@ function RootLayoutContent() {
 
 function RootLayout() {
   return (
-    <FileBrowserProvider>
-      <RootLayoutContent />
-    </FileBrowserProvider>
+    <QueryClientProvider client={queryClient}>
+      <FileBrowserProvider>
+        <RootLayoutContent />
+      </FileBrowserProvider>
+    </QueryClientProvider>
   );
 }
 

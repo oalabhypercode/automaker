@@ -63,6 +63,8 @@ import { createPipelineRoutes } from './routes/pipeline/index.js';
 import { pipelineService } from './services/pipeline-service.js';
 import { createIdeationRoutes } from './routes/ideation/index.js';
 import { IdeationService } from './services/ideation-service.js';
+import { createPublicProjectsRoutes } from './routes/public-projects/index.js';
+import { createPgSyncRoutes } from './routes/pg-sync/index.js';
 
 // Load environment variables
 dotenv.config();
@@ -188,9 +190,10 @@ setInterval(() => {
 // This helps prevent CSRF and content-type confusion attacks
 app.use('/api', requireJsonContentType);
 
-// Mount API routes - health and auth are unauthenticated
+// Mount API routes - health/auth/public are unauthenticated
 app.use('/api/health', createHealthRoutes());
 app.use('/api/auth', createAuthRoutes());
+app.use('/api/public/projects', createPublicProjectsRoutes());
 
 // Apply authentication to all other routes
 app.use('/api', authMiddleware);
@@ -222,6 +225,7 @@ app.use('/api/backlog-plan', createBacklogPlanRoutes(events, settingsService));
 app.use('/api/mcp', createMCPRoutes(mcpTestService));
 app.use('/api/pipeline', createPipelineRoutes(pipelineService));
 app.use('/api/ideation', createIdeationRoutes(events, ideationService, featureLoader));
+app.use('/api/pg-sync', createPgSyncRoutes());
 
 // Create HTTP server
 const server = createServer(app);

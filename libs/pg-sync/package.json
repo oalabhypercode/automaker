@@ -22,13 +22,17 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "keywords": [
     "automaker",
     "postgres",
     "sync",
-    "supabase"
+    "drizzle"
   ],
   "author": "AutoMaker Team",
   "license": "SEE LICENSE IN LICENSE",
@@ -36,12 +40,17 @@
     "node": ">=22.0.0 <23.0.0"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.50.0"
+    "bcryptjs": "^3.0.3",
+    "drizzle-orm": "^0.38.0",
+    "postgres": "^3.4.5",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "22.19.3",
-    "typescript": "5.9.3",
-    "rimraf": "^6.0.0"
+    "drizzle-kit": "^0.30.0",
+    "rimraf": "^6.0.0",
+    "typescript": "5.9.3"
   },
   "peerDependencies": {
     "@automaker/types": "^1.0.0"

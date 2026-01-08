@@ -1,0 +1,156 @@
+﻿src/components/claude-usage-popover.tsx(28,48): error TS2339: Property 'setClaudeUsage' does not exist on type 'AppState & AppActions'.
+src/components/layout/sidebar/components/sidebar-navigation.tsx(55,34): error TS2322: Type '`/${string}`' is not assignable to type '"/" | "." | ".." | "/agent" | "/board" | "/context" | "/github-issues" | "/github-prs" | "/interview" | "/login" | "/profiles" | "/running-agents" | "/settings" | "/setup" | "/spec" | "/terminal" | "/wiki" | undefined'.
+src/components/layout/sidebar/hooks/use-navigation.ts(257,40): error TS2322: Type '`/${string}`' is not assignable to type '"/" | "." | ".." | "/agent" | "/board" | "/context" | "/github-issues" | "/github-prs" | "/interview" | "/login" | "/profiles" | "/running-agents" | "/settings" | "/setup" | "/spec" | "/terminal" | "/wiki" | undefined'.
+src/components/layout/sidebar/hooks/use-project-creation.ts(135,39): error TS2339: Property 'templates' does not exist on type 'ElectronAPI'.
+src/components/layout/sidebar/hooks/use-project-creation.ts(207,39): error TS2339: Property 'templates' does not exist on type 'ElectronAPI'.
+src/components/ui/description-image-dropzone.tsx(10,28): error TS2724: '"@/store/app-store"' has no exported member named 'FeatureImagePath'. Did you mean 'FeatureImage'?
+src/components/ui/description-image-dropzone.tsx(10,51): error TS2305: Module '"@/store/app-store"' has no exported member 'FeatureTextFilePath'.
+src/components/ui/task-progress-panel.tsx(55,55): error TS2339: Property 'tasks' does not exist on type '{}'.
+src/components/ui/task-progress-panel.tsx(56,51): error TS2339: Property 'tasks' does not exist on type '{}'.
+src/components/ui/task-progress-panel.tsx(57,51): error TS2339: Property 'currentTaskId' does not exist on type '{}'.
+src/components/ui/task-progress-panel.tsx(58,56): error TS2339: Property 'tasksCompleted' does not exist on type '{}'.
+src/components/views/analysis-view.tsx(640,56): error TS2345: Argument of type '{ id: `${string}-${string}-${string}-${string}-${string}`; category: string; description: string; status: "backlog"; }' is not assignable to parameter of type 'Feature'.
+  Property 'steps' is missing in type '{ id: `${string}-${string}-${string}-${string}-${string}`; category: string; description: string; status: "backlog"; }' but required in type 'Feature'.
+src/components/views/board-view.tsx(306,18): error TS2538: Type '{}' cannot be used as an index type.
+src/components/views/board-view.tsx(306,36): error TS2538: Type '{}' cannot be used as an index type.
+src/components/views/board-view.tsx(517,60): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.
+src/components/views/board-view.tsx(706,15): error TS2339: Property 'backlogPlan' does not exist on type 'ElectronAPI'.
+src/components/views/board-view.tsx(708,29): error TS2339: Property 'backlogPlan' does not exist on type 'ElectronAPI'.
+src/components/views/board-view.tsx(791,62): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.
+src/components/views/board-view.tsx(805,21): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/views/board-view.tsx(805,43): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/views/board-view.tsx(951,50): error TS2339: Property 'version' does not exist on type '{}'.
+src/components/views/board-view.tsx(1008,50): error TS2339: Property 'version' does not exist on type '{}'.
+src/components/views/board-view.tsx(1037,30): error TS2339: Property 'content' does not exist on type '{}'.
+src/components/views/board-view.tsx(1048,39): error TS2339: Property 'content' does not exist on type '{}'.
+src/components/views/board-view.tsx(1126,9): error TS2322: Type '{ id: string; branchName: unknown; }[]' is not assignable to type 'FeatureInfo[]'.
+  Type '{ id: string; branchName: unknown; }' is not assignable to type 'FeatureInfo'.
+    Types of property 'branchName' are incompatible.
+      Type 'unknown' is not assignable to type 'string | undefined'.
+src/components/views/board-view.tsx(1387,53): error TS2339: Property 'content' does not exist on type '{}'.
+src/components/views/board-view.tsx(1392,49): error TS2339: Property 'content' does not exist on type '{}'.
+src/components/views/board-view/components/kanban-card/agent-info-panel.tsx(2,19): error TS2305: Module '"@/store/app-store"' has no exported member 'ThinkingLevel'.
+src/components/views/board-view/components/kanban-card/agent-info-panel.tsx(113,60): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.
+src/components/views/board-view/components/kanban-card/agent-info-panel.tsx(137,62): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.
+src/components/views/board-view/components/kanban-card/agent-info-panel.tsx(222,21): error TS2322: Type '{} | undefined' is not assignable to type 'ReactNode'.
+  Type '{}' is not assignable to type 'ReactNode'.
+src/components/views/board-view/components/kanban-card/card-actions.tsx(62,30): error TS2339: Property 'status' does not exist on type '{}'.
+src/components/views/board-view/components/kanban-card/card-actions.tsx(122,30): error TS2339: Property 'status' does not exist on type '{}'.
+src/components/views/board-view/components/kanban-card/card-actions.tsx(293,30): error TS2339: Property 'content' does not exist on type '{}'.
+src/components/views/board-view/components/kanban-card/card-badges.tsx(63,7): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/views/board-view/components/kanban-card/card-badges.tsx(79,18): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/views/board-view/components/kanban-card/card-badges.tsx(175,7): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/views/board-view/components/kanban-card/card-badges.tsx(176,7): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/views/board-view/components/kanban-card/card-content-sections.tsx(16,48): error TS2322: Type '{}' is not assignable to type 'string'.
+src/components/views/board-view/components/kanban-card/card-content-sections.tsx(17,13): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/views/board-view/components/kanban-card/card-header.tsx(68,13): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/views/board-view/components/kanban-card/card-header.tsx(70,17): error TS2322: Type '{}' is not assignable to type 'string'.
+src/components/views/board-view/components/kanban-card/card-header.tsx(115,42): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.
+src/components/views/board-view/components/kanban-card/card-header.tsx(294,44): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.
+src/components/views/board-view/components/kanban-card/card-header.tsx(330,13): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/views/board-view/components/kanban-card/card-header.tsx(332,59): error TS2339: Property 'length' does not exist on type '{}'.
+src/components/views/board-view/components/kanban-card/kanban-card.tsx(147,5): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'ClassValue'.
+src/components/views/board-view/components/kanban-card/summary-dialog.tsx(43,13): error TS2322: Type '{}' is not assignable to type 'string'.
+src/components/views/board-view/components/kanban-card/summary-dialog.tsx(45,13): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/views/board-view/components/kanban-card/summary-dialog.tsx(47,34): error TS2339: Property 'length' does not exist on type '{}'.
+src/components/views/board-view/components/kanban-card/summary-dialog.tsx(47,64): error TS2339: Property 'slice' does not exist on type '{}'.
+src/components/views/board-view/components/kanban-card/summary-dialog.tsx(52,12): error TS2745: This JSX tag's 'children' prop expects type 'string' which requires multiple children, but only a single child was provided.
+src/components/views/board-view/dialogs/add-feature-dialog.tsx(37,3): error TS2305: Module '"@/store/app-store"' has no exported member 'ThinkingLevel'.
+src/components/views/board-view/dialogs/add-feature-dialog.tsx(39,3): error TS2459: Module '"@/store/app-store"' declares 'AIProfile' locally, but it is not exported.
+src/components/views/board-view/dialogs/add-feature-dialog.tsx(40,3): error TS2459: Module '"@/store/app-store"' declares 'PlanningMode' locally, but it is not exported.
+src/components/views/board-view/dialogs/add-feature-dialog.tsx(78,10): error TS2304: Cannot find name 'AgentModel'.
+src/components/views/board-view/dialogs/add-feature-dialog.tsx(236,9): error TS2322: Type 'unknown' is not assignable to type 'string | undefined'.
+src/components/views/board-view/dialogs/add-feature-dialog.tsx(237,9): error TS2322: Type 'unknown' is not assignable to type 'string | undefined'.
+src/components/views/board-view/dialogs/add-feature-dialog.tsx(327,9): error TS2554: Expected 2-3 arguments, but got 4.
+src/components/views/board-view/dialogs/add-feature-dialog.tsx(435,19): error TS2322: Type 'unknown' is not assignable to type 'string | undefined'.
+src/components/views/board-view/dialogs/add-feature-dialog.tsx(436,19): error TS2322: Type 'unknown' is not assignable to type 'string | undefined'.
+src/components/views/board-view/dialogs/backlog-plan-dialog.tsx(109,15): error TS2339: Property 'backlogPlan' does not exist on type 'ElectronAPI'.
+src/components/views/board-view/dialogs/backlog-plan-dialog.tsx(120,30): error TS2339: Property 'backlogPlan' does not exist on type 'ElectronAPI'.
+src/components/views/board-view/dialogs/backlog-plan-dialog.tsx(149,15): error TS2339: Property 'backlogPlan' does not exist on type 'ElectronAPI'.
+src/components/views/board-view/dialogs/backlog-plan-dialog.tsx(170,30): error TS2339: Property 'backlogPlan' does not exist on type 'ElectronAPI'.
+src/components/views/board-view/dialogs/completed-features-modal.tsx(61,23): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/views/board-view/dialogs/dependency-tree-dialog.tsx(30,8): error TS2339: Property 'map' does not exist on type '{}'.
+src/components/views/board-view/dialogs/dependency-tree-dialog.tsx(30,13): error TS7006: Parameter 'depId' implicitly has an 'any' type.
+src/components/views/board-view/dialogs/dependency-tree-dialog.tsx(31,16): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/components/views/board-view/dialogs/dependency-tree-dialog.tsx(34,66): error TS2339: Property 'includes' does not exist on type '{}'.
+src/components/views/board-view/dialogs/dependency-tree-dialog.tsx(83,33): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'number | undefined'.
+src/components/views/board-view/dialogs/dependency-tree-dialog.tsx(120,41): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'number | undefined'.
+src/components/views/board-view/dialogs/dependency-tree-dialog.tsx(166,41): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'number | undefined'.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(37,3): error TS2305: Module '"@/store/app-store"' has no exported member 'ThinkingLevel'.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(38,3): error TS2459: Module '"@/store/app-store"' declares 'AIProfile' locally, but it is not exported.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(40,3): error TS2459: Module '"@/store/app-store"' declares 'PlanningMode' locally, but it is not exported.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(153,35): error TS2339: Property 'trim' does not exist on type '{}'.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(186,33): error TS2345: Argument of type '{ title: string; category: string; description: string; skipTests: {}; model: string; thinkingLevel: ThinkingLevel; imagePaths: FeatureImagePath[]; textFilePaths: FeatureTextFilePath[]; branchName: {}; priority: {}; planningMode: PlanningMode; requirePlanApproval: {}; }' is not assignable to parameter of type '{ title: string; category: string; description: string; skipTests: boolean; model: string; thinkingLevel: ThinkingLevel; imagePaths: DescriptionImagePath[]; textFilePaths: DescriptionTextFilePath[]; branchName: string; priority: number; planningMode: PlanningMode; requirePlanApproval: boolean; }'.
+  Types of property 'skipTests' are incompatible.
+    Type '{}' is not assignable to type 'boolean'.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(244,9): error TS2554: Expected 2-3 arguments, but got 4.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(265,52): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | undefined'.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(423,17): error TS2322: Type '{}' is not assignable to type 'string'.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(440,15): error TS2322: Type '{}' is not assignable to type 'number'.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(477,15): error TS2322: Type '{}' is not assignable to type 'string'.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(478,15): error TS2322: Type '{}' is not assignable to type 'ThinkingLevel'.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(521,15): error TS2322: Type '{}' is not assignable to type 'boolean | undefined'.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(532,15): error TS2322: Type '{}' is not assignable to type 'boolean'.
+src/components/views/board-view/dialogs/edit-feature-dialog.tsx(560,45): error TS2339: Property 'trim' does not exist on type '{}'.
+src/components/views/board-view/dialogs/mass-edit-dialog.tsx(15,31): error TS2305: Module '"@/store/app-store"' has no exported member 'ThinkingLevel'.
+src/components/views/board-view/dialogs/mass-edit-dialog.tsx(15,46): error TS2459: Module '"@/store/app-store"' declares 'AIProfile' locally, but it is not exported.
+src/components/views/board-view/dialogs/mass-edit-dialog.tsx(15,57): error TS2459: Module '"@/store/app-store"' declares 'PlanningMode' locally, but it is not exported.
+src/components/views/board-view/hooks/use-board-actions.ts(6,3): error TS2305: Module '"@/store/app-store"' has no exported member 'ThinkingLevel'.
+src/components/views/board-view/hooks/use-board-actions.ts(7,3): error TS2459: Module '"@/store/app-store"' declares 'PlanningMode' locally, but it is not exported.
+src/components/views/board-view/hooks/use-board-actions.ts(776,81): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.
+src/components/views/board-view/hooks/use-board-actions.ts(820,14): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/views/board-view/hooks/use-board-actions.ts(820,36): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/views/board-view/hooks/use-board-column-features.ts(73,73): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.
+src/components/views/board-view/hooks/use-board-column-features.ts(152,26): error TS2345: Argument of type 'import("D:/CODING/React Projects/automaker/libs/types/dist/feature").Feature' is not assignable to parameter of type 'import("D:/CODING/React Projects/automaker/apps/ui/src/store/app-store").Feature'.
+  Property 'steps' is missing in type 'import("D:/CODING/React Projects/automaker/libs/types/dist/feature").Feature' but required in type 'import("D:/CODING/React Projects/automaker/apps/ui/src/store/app-store").Feature'.
+src/components/views/board-view/hooks/use-board-column-features.ts(154,28): error TS2345: Argument of type 'import("D:/CODING/React Projects/automaker/libs/types/dist/feature").Feature' is not assignable to parameter of type 'import("D:/CODING/React Projects/automaker/apps/ui/src/store/app-store").Feature'.
+  Property 'steps' is missing in type 'import("D:/CODING/React Projects/automaker/libs/types/dist/feature").Feature' but required in type 'import("D:/CODING/React Projects/automaker/apps/ui/src/store/app-store").Feature'.
+src/components/views/board-view/hooks/use-board-column-features.ts(160,9): error TS2322: Type 'import("D:/CODING/React Projects/automaker/libs/types/dist/feature").Feature[]' is not assignable to type 'import("D:/CODING/React Projects/automaker/apps/ui/src/store/app-store").Feature[]'.
+  Property 'steps' is missing in type 'import("D:/CODING/React Projects/automaker/libs/types/dist/feature").Feature' but required in type 'import("D:/CODING/React Projects/automaker/apps/ui/src/store/app-store").Feature'.
+src/components/views/board-view/shared/model-constants.ts(1,27): error TS2305: Module '"@/store/app-store"' has no exported member 'ThinkingLevel'.
+src/components/views/board-view/shared/thinking-level-selector.tsx(4,10): error TS2305: Module '"@/store/app-store"' has no exported member 'ThinkingLevel'.
+src/components/views/board-view/worktree-panel/components/worktree-tab.tsx(90,16): error TS2503: Cannot find namespace 'JSX'.
+src/components/views/github-issues-view.tsx(119,73): error TS2345: Argument of type '{ id: string; title: string; description: string; category: string; status: "backlog"; passes: boolean; priority: number; model: string; thinkingLevel: ThinkingLevel; branchName: string; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'Feature'.
+  Property 'steps' is missing in type '{ id: string; title: string; description: string; category: string; status: "backlog"; passes: boolean; priority: number; model: string; thinkingLevel: ThinkingLevel; branchName: string; createdAt: string; updatedAt: string; }' but required in type 'Feature'.
+src/components/views/github-issues-view/hooks/use-issue-validation.ts(294,13): error TS2554: Expected 2-3 arguments, but got 4.
+src/components/views/ideation-view/components/prompt-list.tsx(87,26): error TS2322: Type '"/ideation"' is not assignable to type '"/" | "." | ".." | "/agent" | "/board" | "/context" | "/github-issues" | "/github-prs" | "/interview" | "/login" | "/profiles" | "/running-agents" | "/settings" | "/setup" | "/spec" | "/terminal" | "/wiki"'.
+src/components/views/interview-view.tsx(346,13): error TS2741: Property 'steps' is missing in type '{ id: `${string}-${string}-${string}-${string}-${string}`; category: string; description: string; status: "backlog"; skipTests: boolean; }' but required in type 'Feature'.
+src/components/views/profiles-view.tsx(2,23): error TS2459: Module '"@/store/app-store"' declares 'AIProfile' locally, but it is not exported.
+src/components/views/profiles-view/components/profile-form.tsx(265,43): error TS2339: Property 'tier' does not exist on type 'CursorModelConfig'.
+src/components/views/profiles-view/components/profile-form.tsx(271,35): error TS2339: Property 'tier' does not exist on type 'CursorModelConfig'.
+src/components/views/profiles-view/constants.ts(2,27): error TS2305: Module '"@/store/app-store"' has no exported member 'ThinkingLevel'.
+src/components/views/settings-view.tsx(114,13): error TS2322: Type '(newTheme: ThemeMode) => void' is not assignable to type '(theme: Theme) => void'.
+  Types of parameters 'newTheme' and 'theme' are incompatible.
+    Type 'Theme' is not assignable to type 'ThemeMode'.
+      Type '"lavender"' is not assignable to type 'ThemeMode'.
+src/components/views/settings-view/api-keys/hooks/use-api-key-management.ts(90,26): error TS18048: 'api.setup' is possibly 'undefined'.
+src/components/views/settings-view/api-keys/hooks/use-api-key-management.ts(90,64): error TS2554: Expected 0-1 arguments, but got 2.
+src/components/views/settings-view/feature-defaults/feature-defaults-section.tsx(24,15): error TS2459: Module '"@/store/app-store"' declares 'AIProfile' locally, but it is not exported.
+src/components/views/settings-view/providers/claude-settings-tab.tsx(41,8): error TS2739: Type '{ autoLoadClaudeMd: boolean; onAutoLoadClaudeMdChange: (enabled: boolean) => Promise<void>; }' is missing the following properties from type 'ClaudeMdSettingsProps': enableSandboxMode, onEnableSandboxModeChange
+src/components/views/setup-view/steps/cursor-setup-step.tsx(53,23): error TS2339: Property 'getCursorStatus' does not exist on type '{ getClaudeStatus: () => Promise<{ success: boolean; status?: string | undefined; installed?: boolean | undefined; method?: string | undefined; version?: string | undefined; path?: string | undefined; auth?: { ...; } | undefined; error?: string | undefined; }>; ... 9 more ...; onAuthProgress?: ((callback: (progress:...'.
+src/components/views/setup-view/steps/cursor-setup-step.tsx(56,38): error TS2339: Property 'getCursorStatus' does not exist on type '{ getClaudeStatus: () => Promise<{ success: boolean; status?: string | undefined; installed?: boolean | undefined; method?: string | undefined; version?: string | undefined; path?: string | undefined; auth?: { ...; } | undefined; error?: string | undefined; }>; ... 9 more ...; onAuthProgress?: ((callback: (progress:...'.
+src/components/views/setup-view/steps/cursor-setup-step.tsx(112,27): error TS2339: Property 'getCursorStatus' does not exist on type '{ getClaudeStatus: () => Promise<{ success: boolean; status?: string | undefined; installed?: boolean | undefined; method?: string | undefined; version?: string | undefined; path?: string | undefined; auth?: { ...; } | undefined; error?: string | undefined; }>; ... 9 more ...; onAuthProgress?: ((callback: (progress:...'.
+src/components/views/setup-view/steps/cursor-setup-step.tsx(115,42): error TS2339: Property 'getCursorStatus' does not exist on type '{ getClaudeStatus: () => Promise<{ success: boolean; status?: string | undefined; installed?: boolean | undefined; method?: string | undefined; version?: string | undefined; path?: string | undefined; auth?: { ...; } | undefined; error?: string | undefined; }>; ... 9 more ...; onAuthProgress?: ((callback: (progress:...'.
+src/hooks/use-electron-agent.ts(143,11): error TS2554: Expected 2-5 arguments, but got 6.
+src/hooks/use-electron-agent.ts(260,14): error TS2678: Type '"started"' is not comparable to type '"error" | "message" | "complete" | "stream" | "tool_use"'.
+src/hooks/use-electron-agent.ts(335,14): error TS2678: Type '"queue_updated"' is not comparable to type '"error" | "message" | "complete" | "stream" | "tool_use"'.
+src/hooks/use-electron-agent.ts(337,47): error TS2339: Property 'queue' does not exist on type 'never'.
+src/hooks/use-electron-agent.ts(338,32): error TS2339: Property 'queue' does not exist on type 'never'.
+src/hooks/use-electron-agent.ts(341,14): error TS2678: Type '"queue_error"' is not comparable to type '"error" | "message" | "complete" | "stream" | "tool_use"'.
+src/hooks/use-electron-agent.ts(343,46): error TS2339: Property 'error' does not exist on type 'never'.
+src/hooks/use-electron-agent.ts(344,26): error TS2339: Property 'error' does not exist on type 'never'.
+src/hooks/use-electron-agent.ts(421,11): error TS2554: Expected 2-5 arguments, but got 6.
+src/hooks/use-electron-agent.ts(490,24): error TS2339: Property 'queueAdd' does not exist on type '{ start: (sessionId: string, workingDirectory?: string | undefined) => Promise<{ success: boolean; messages?: Message[] | undefined; error?: string | undefined; }>; ... 4 more ...; onStream: (callback: (data: unknown) => void) => () => void; }'.
+src/hooks/use-electron-agent.ts(524,40): error TS2339: Property 'queueAdd' does not exist on type '{ start: (sessionId: string, workingDirectory?: string | undefined) => Promise<{ success: boolean; messages?: Message[] | undefined; error?: string | undefined; }>; ... 4 more ...; onStream: (callback: (data: unknown) => void) => () => void; }'.
+src/hooks/use-electron-agent.ts(547,24): error TS2339: Property 'queueRemove' does not exist on type '{ start: (sessionId: string, workingDirectory?: string | undefined) => Promise<{ success: boolean; messages?: Message[] | undefined; error?: string | undefined; }>; ... 4 more ...; onStream: (callback: (data: unknown) => void) => () => void; }'.
+src/hooks/use-electron-agent.ts(554,40): error TS2339: Property 'queueRemove' does not exist on type '{ start: (sessionId: string, workingDirectory?: string | undefined) => Promise<{ success: boolean; messages?: Message[] | undefined; error?: string | undefined; }>; ... 4 more ...; onStream: (callback: (data: unknown) => void) => () => void; }'.
+src/hooks/use-electron-agent.ts(570,22): error TS2339: Property 'queueClear' does not exist on type '{ start: (sessionId: string, workingDirectory?: string | undefined) => Promise<{ success: boolean; messages?: Message[] | undefined; error?: string | undefined; }>; ... 4 more ...; onStream: (callback: (data: unknown) => void) => () => void; }'.
+src/hooks/use-electron-agent.ts(577,38): error TS2339: Property 'queueClear' does not exist on type '{ start: (sessionId: string, workingDirectory?: string | undefined) => Promise<{ success: boolean; messages?: Message[] | undefined; error?: string | undefined; }>; ... 4 more ...; onStream: (callback: (data: unknown) => void) => () => void; }'.
+src/hooks/use-responsive-kanban.ts(58,28): error TS2554: Expected 1 arguments, but got 0.
+src/lib/electron.ts(13,3): error TS2305: Module '"@automaker/types"' has no exported member 'AgentModel'.
+src/lib/electron.ts(796,30): error TS2339: Property 'isElectron' does not exist on type 'ElectronAPI'.
+src/routes/ideation.tsx(4,38): error TS2345: Argument of type '"/ideation"' is not assignable to parameter of type 'keyof FileRoutesByPath | undefined'.
+src/routes/p.$slug.tsx(12,38): error TS2345: Argument of type '"/p/$slug"' is not assignable to parameter of type 'keyof FileRoutesByPath | undefined'.
+src/routes/p.$slug.tsx(17,11): error TS2339: Property 'slug' does not exist on type '{} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {}'.
+src/store/app-store.ts(23,15): error TS2484: Export declaration conflicts with exported declaration of 'ThemeMode'.
+src/store/app-store.ts(286,19): error TS2304: Cannot find name 'FeatureTextFilePath'.

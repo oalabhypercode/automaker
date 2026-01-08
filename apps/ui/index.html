@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en" suppressHydrationWarning>
   <head>
+    <script type="module">
+      if (import.meta.env.DEV) {
+        import('react-grab');
+        import('@react-grab/claude-code/client');
+      }
+    </script>
     <meta charset="UTF-8" />
     <title>Automaker - Autonomous AI Development Studio</title>
     <meta name="description" content="Build software autonomously with AI agents" />

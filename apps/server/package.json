@@ -29,6 +29,7 @@
     "@automaker/git-utils": "1.0.0",
     "@automaker/model-resolver": "1.0.0",
     "@automaker/platform": "1.0.0",
+    "@automaker/pg-sync": "1.0.0",
     "@automaker/prompts": "1.0.0",
     "@automaker/types": "1.0.0",
     "@automaker/utils": "1.0.0",
@@ -37,6 +38,7 @@
     "cors": "2.8.5",
     "dotenv": "17.2.3",
     "express": "5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "morgan": "1.10.1",
     "node-pty": "1.1.0-beta41",
     "ws": "8.18.3"
@@ -46,6 +48,7 @@
     "@types/cookie-parser": "1.4.10",
     "@types/cors": "2.8.19",
     "@types/express": "5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "1.9.10",
     "@types/node": "22.19.3",
     "@types/ws": "8.18.1",

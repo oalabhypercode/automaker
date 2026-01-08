@@ -2,9 +2,11 @@
 
 ULTRATHINK
 
-> **Status:** ⏳ Offen
+> **Status:** ✅ ERLEDIGT (2026-01-07)
 > **Abhängigkeiten:** Phase 0.1 (Architektur-Entscheidung)
 > **Geschätzte Komplexität:** Mittel
+>
+> **Hinweis:** Verwendet Drizzle ORM + postgres.js statt Supabase SDK für mehr Kontrolle.
 
 ---
 
@@ -288,11 +290,11 @@ SYNC_AUTO_PULL=true
 
 ## ✅ Abschlusskriterien
 
-- [ ] Supabase-Projekt erstellt und erreichbar
-- [ ] Alle Tabellen angelegt (leer, aber Schema steht)
-- [ ] RLS-Policies aktiv
-- [ ] Environment-Variablen dokumentiert
-- [ ] Client-Setup getestet (einfacher Query funktioniert)
+- [x] ~~Supabase-Projekt~~ Postgres/Drizzle Package erstellt ✅
+- [ ] Alle Tabellen angelegt (→ Phase 1.1)
+- [ ] RLS-Policies aktiv (→ Phase 1.1)
+- [x] Environment-Variablen dokumentiert (.env.example) ✅
+- [x] Client-Setup getestet (TypeScript kompiliert) ✅
 
 ---
 

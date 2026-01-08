@@ -2,7 +2,7 @@
 
 ULTRATHINK
 
-> **Status:** ⏳ Offen
+> **Status:** ✅ Implementiert
 > **Abhängigkeiten:** Phase 3.1 (URLs)
 > **Geschätzte Komplexität:** Mittel
 
@@ -165,12 +165,41 @@ _Anmerkung: Das Rendern des Login-Screens direkt in der Component verhindert unn
 
 ## ✅ Abschlusskriterien
 
-- [ ] Admin kann im internen Bereich ein Passwort für ein Projekt setzen (Update Action).
-- [ ] Zugriff auf `/p/slug` wird blockiert, wenn Passwort aktiv und kein Cookie da ist.
-- [ ] Login funktioniert, setzt Cookie.
-- [ ] Nach Login ist Board sichtbar.
-- [ ] Cookie ist HttpOnly und Secure.
-- [ ] Passwort-Hash wird sicher in DB gespeichert.
+- [x] Admin kann im internen Bereich ein Passwort für ein Projekt setzen (Update Action).
+- [x] Zugriff auf `/p/slug` wird blockiert, wenn Passwort aktiv und kein Cookie da ist.
+- [x] Login funktioniert, setzt Cookie.
+- [x] Nach Login ist Board sichtbar.
+- [x] Cookie ist HttpOnly und Secure.
+- [x] Passwort-Hash wird sicher in DB gespeichert.
+
+---
+
+## ✅ Umsetzung (2026-01-06)
+
+- Auth-Action: Passwort-Validierung + Hashing via bcryptjs.
+- API: Public Project Meta/Auth/Board Endpunkte + HttpOnly JWT-Cookie.
+- UI: Login-Formular + protected Board-Flow.
+- Logout: Cookie-Reset via `/api/public/projects/:slug/logout`.
+
+---
+
+## 🔐 Security-Entscheidungen (2026-01-07)
+
+### JWT_SECRET in Production erzwingen?
+
+✅ **JA - Implementiert!**
+
+- Server crasht mit Fehlermeldung, wenn `JWT_SECRET` in Production fehlt
+- In Development wird ein unsicherer Fallback mit Warnung verwendet
+- Verhindert fälschbare Tokens in Production
+
+### Rate Limiting auf Auth-Endpoint?
+
+⏳ **Zurückgestellt auf Infra-Level**
+
+- TODO-Kommentar im Code dokumentiert das Risiko
+- Empfehlung: Infra-Level Rate-Limiting (Nginx, Cloudflare, etc.)
+- Grund: Skalierbarkeit bei mehreren Server-Instanzen
 
 ---
 

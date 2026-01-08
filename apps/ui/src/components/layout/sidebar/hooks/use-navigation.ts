@@ -11,6 +11,7 @@ import {
   GitPullRequest,
   Zap,
   Lightbulb,
+  Globe,
 } from 'lucide-react';
 import type { NavSection, NavItem } from '../types';
 import type { KeyboardShortcut } from '@/hooks/use-keyboard-shortcuts';
@@ -194,6 +195,18 @@ export function useNavigation({
         ],
       });
     }
+
+    // Add Online section for pg-sync management
+    sections.push({
+      label: 'Online',
+      items: [
+        {
+          id: 'online-sync',
+          label: 'Online Sync',
+          icon: Globe,
+        },
+      ],
+    });
 
     return sections;
   }, [

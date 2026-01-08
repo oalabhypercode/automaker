@@ -2,7 +2,7 @@
 
 ULTRATHINK
 
-> **Status:** ⏳ Offen
+> **Status:** ✅ Implementiert
 > **Abhängigkeiten:** Phase 3.2 (Auth), Phase 2.3 (Internes Board)
 > **Geschätzte Komplexität:** Mittel
 
@@ -158,11 +158,20 @@ Dieser muss Kommentare (Public) und Description zeigen (Phase 3.4/3.5 beachten).
 
 ## ✅ Abschlusskriterien
 
-- [ ] Route `/p/[slug]` zeigt Kanban-Spalten.
-- [ ] Tickets werden geladen.
-- [ ] Tickets können NICHT bewegt werden (DragDisabled).
-- [ ] UI ist responsiv für Mobile (Kunden schauen oft am Handy).
-- [ ] Sensible Daten (Interne Kommentare, Felder) werden nicht an den Client gesendet.
+- [x] Route `/p/[slug]` zeigt Kanban-Spalten.
+- [x] Tickets werden geladen.
+- [x] Tickets können NICHT bewegt werden (DragDisabled).
+- [x] UI ist responsiv für Mobile (Kunden schauen oft am Handy).
+- [x] Sensible Daten (Interne Kommentare, Felder) werden nicht an den Client gesendet.
+
+---
+
+## ✅ Umsetzung (2026-01-06)
+
+- Backend: `getPublicProjectTickets` filtert interne Tickets und liefert nur reduzierte Felder.
+- API: `/api/public/projects/:slug/board` nutzt die Public-Fetch-Logik.
+- UI: Read-only Kanban mit responsiven Spalten + Detail-Dialog umgesetzt.
+- Branding: Projekt-Logo (falls vorhanden) wird im Header angezeigt.
 
 ---
 
