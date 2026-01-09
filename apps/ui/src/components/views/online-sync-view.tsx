@@ -22,6 +22,9 @@ import {
   Eye,
   EyeOff,
   MessageSquarePlus,
+  Download,
+  RefreshCw,
+  Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,14 +42,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { useAppStore } from '@/store/app-store';
 import {
   useOnlineProjects,
+  useSeedLocalProjects,
   useEnableCustomerAccess,
   useDisableCustomerAccess,
   useSetProjectPassword,
   useRemoveProjectPassword,
   useUpdatePublicSettings,
   useUpdateProjectSlug,
+  usePullFromRemote,
+  usePullSyncStatus,
+  usePushToRemote,
+  usePullToLocal,
   type OnlineProject,
 } from '@/hooks/use-online-projects';
 
@@ -62,6 +71,33 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function OnlineSyncView() {
   const { data: projects, isLoading, error } = useOnlineProjects();
+  const localProjects = useAppStore((state) => state.projects);
+  const seedLocalProjects = useSeedLocalProjects();
+  const hasLocalProjects = localProjects.length > 0;
+
+  const handleSeedLocalProjects = useCallback(async () => {
+    if (!hasLocalProjects) {
+      toast.error('No local projects found to import');
+      return;
+    }
+
+    try {
+      const result = await seedLocalProjects.mutateAsync({
+        projects: localProjects.map((project) => ({
+          name: project.name,
+          path: project.path,
+        })),
+        includeTickets: true,
+      });
+
+      const { summary } = result;
+      toast.success(
+        `Imported ${summary.projectsCreated} project(s) and ${summary.ticketsCreated} ticket(s)`
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to import local projects');
+    }
+  }, [hasLocalProjects, localProjects, seedLocalProjects]);
 
   if (isLoading) {
     return (
@@ -111,6 +147,35 @@ export function OnlineSyncView() {
                 <p className="text-sm text-muted-foreground">
                   Projects synced to the online database will appear here.
                 </p>
+                {hasLocalProjects ? (
+                  <div className="mt-6 space-y-4">
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {localProjects.map((project) => (
+                        <Badge key={project.id} variant="outline">
+                          {project.name}
+                        </Badge>
+                      ))}
+                    </div>
+                    <div className="flex flex-col items-center gap-2">
+                      <Button
+                        onClick={handleSeedLocalProjects}
+                        disabled={seedLocalProjects.isPending}
+                      >
+                        {seedLocalProjects.isPending && (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
+                        Import Local Projects
+                      </Button>
+                      <p className="text-xs text-muted-foreground">
+                        This will create online entries and import tickets from .automaker/features.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground mt-4">
+                    Open or create a project to import it here.
+                  </p>
+                )}
               </CardContent>
             </Card>
           ) : (
@@ -128,50 +193,253 @@ function ProjectCard({ project }: { project: OnlineProject }) {
   return (
     <Card>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer hover:bg-muted/30 transition-colors">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {isOpen ? (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                )}
-                <div>
-                  <CardTitle className="text-base">{project.name}</CardTitle>
-                  <CardDescription className="text-xs">/{project.slug}</CardDescription>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {project.customerAccessEnabled ? (
-                  <Badge variant="success" size="sm">
-                    <Globe className="h-3 w-3 mr-1" />
-                    Public
-                  </Badge>
-                ) : (
-                  <Badge variant="muted" size="sm">
-                    <EyeOff className="h-3 w-3 mr-1" />
-                    Private
-                  </Badge>
-                )}
-                {project.hasPassword && (
-                  <Badge variant="warning" size="sm">
-                    <Lock className="h-3 w-3 mr-1" />
-                    Protected
-                  </Badge>
-                )}
+        <CardHeader
+          className="cursor-pointer hover:bg-muted/30 transition-colors w-full text-left"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {isOpen ? (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              )}
+              <div>
+                <CardTitle className="text-base">{project.name}</CardTitle>
+                <CardDescription className="text-xs">/{project.slug}</CardDescription>
               </div>
             </div>
-          </CardHeader>
-        </CollapsibleTrigger>
+            <div className="flex items-center gap-2">
+              {project.customerAccessEnabled ? (
+                <Badge variant="success" size="sm">
+                  <Globe className="h-3 w-3 mr-1" />
+                  Public
+                </Badge>
+              ) : (
+                <Badge variant="muted" size="sm">
+                  <EyeOff className="h-3 w-3 mr-1" />
+                  Private
+                </Badge>
+              )}
+              {project.hasPassword && (
+                <Badge variant="warning" size="sm">
+                  <Lock className="h-3 w-3 mr-1" />
+                  Protected
+                </Badge>
+              )}
+            </div>
+          </div>
+        </CardHeader>
 
         <CollapsibleContent>
           <CardContent className="pt-0 space-y-6">
+            <ProjectSyncButtons project={project} />
             <ProjectSettingsPanel project={project} />
           </CardContent>
         </CollapsibleContent>
       </Collapsible>
     </Card>
+  );
+}
+
+/**
+ * Sync Buttons Component
+ * Provides Pull from Remote and Push to Remote functionality
+ */
+function ProjectSyncButtons({ project }: { project: OnlineProject }) {
+  const localProjects = useAppStore((state) => state.projects);
+  const pullFromRemote = usePullFromRemote(project.id);
+  const pushToRemote = usePushToRemote(project.id);
+  const pullToLocal = usePullToLocal(project.id);
+  const { data: syncStatus } = usePullSyncStatus(project.id);
+
+  // Find matching local project by name/slug
+  const localProject = localProjects.find(
+    (p) =>
+      p.name.toLowerCase() === project.name.toLowerCase() ||
+      p.name.toLowerCase().replace(/\s+/g, '-') === project.slug
+  );
+
+  const handlePullFromRemote = useCallback(async () => {
+    try {
+      const result = await pullFromRemote.mutateAsync();
+      if (result.success && result.data) {
+        const ticketCount = result.data.tickets.length;
+        if (ticketCount > 0) {
+          toast.success(`${ticketCount} ticket(s) pulled from remote`);
+        } else {
+          toast.info('No new tickets to sync');
+        }
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to pull from remote');
+    }
+  }, [pullFromRemote]);
+
+  const handlePullToLocal = useCallback(async () => {
+    if (!localProject) {
+      toast.warning('No matching local project found');
+      return;
+    }
+
+    try {
+      const result = await pullToLocal.mutateAsync({
+        localProjectPath: localProject.path,
+        overwriteExisting: false,
+      });
+
+      if (result.success && result.data) {
+        const { created, updated, skipped, failed } = result.data;
+        const parts = [];
+        if (created > 0) parts.push(`${created} created`);
+        if (updated > 0) parts.push(`${updated} updated`);
+        if (skipped > 0) parts.push(`${skipped} skipped`);
+        if (failed > 0) parts.push(`${failed} failed`);
+
+        if (parts.length > 0) {
+          toast.success(`Local features: ${parts.join(', ')}`);
+        } else {
+          toast.info('No tickets to sync to local');
+        }
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to sync to local');
+    }
+  }, [pullToLocal, localProject]);
+
+  const handlePushToRemote = useCallback(async () => {
+    if (!localProject) {
+      toast.warning('No matching local project found');
+      return;
+    }
+
+    try {
+      const result = await pushToRemote.mutateAsync({
+        localProjectPath: localProject.path,
+        includeTickets: true,
+        updateExisting: false,
+      });
+
+      if (result.success) {
+        const { ticketsCreated, ticketsUpdated, ticketsSkipped } = result.data;
+        const parts = [];
+        if (ticketsCreated > 0) parts.push(`${ticketsCreated} created`);
+        if (ticketsUpdated > 0) parts.push(`${ticketsUpdated} updated`);
+        if (ticketsSkipped > 0) parts.push(`${ticketsSkipped} skipped`);
+
+        if (parts.length > 0) {
+          toast.success(`Tickets: ${parts.join(', ')}`);
+        } else {
+          toast.info('No tickets to push');
+        }
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to push to remote');
+    }
+  }, [pushToRemote, localProject]);
+
+  const formatLastSync = (timestamp: string | null) => {
+    if (!timestamp) return 'Never';
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+  };
+
+  const isLoading = pullFromRemote.isPending || pushToRemote.isPending || pullToLocal.isPending;
+
+  return (
+    <div className="flex flex-col gap-3 py-3 border-b border-border/40">
+      {/* Sync Buttons */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handlePullFromRemote}
+          disabled={isLoading}
+          className={cn(
+            'bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20',
+            'hover:shadow-[0_0_15px_-3px_rgba(59,130,246,0.5)]',
+            'transition-all duration-200'
+          )}
+        >
+          {pullFromRemote.isPending ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Syncing...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4 mr-2" />
+              Sync from Remote
+            </>
+          )}
+        </Button>
+
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handlePullToLocal}
+          disabled={isLoading || !localProject}
+          className={cn(
+            'bg-purple-500/10 border-purple-500/30 hover:bg-purple-500/20',
+            'hover:shadow-[0_0_15px_-3px_rgba(147,51,234,0.5)]',
+            'transition-all duration-200',
+            !localProject && 'opacity-50 cursor-not-allowed'
+          )}
+        >
+          {pullToLocal.isPending ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Syncing to Local...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Sync to Local Board
+            </>
+          )}
+        </Button>
+
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handlePushToRemote}
+          disabled={isLoading || !localProject}
+          className={cn(
+            'bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20',
+            'hover:shadow-[0_0_15px_-3px_rgba(16,185,129,0.5)]',
+            'transition-all duration-200',
+            !localProject && 'opacity-50 cursor-not-allowed'
+          )}
+        >
+          {pushToRemote.isPending ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Pushing...
+            </>
+          ) : (
+            <>
+              <Upload className="h-4 w-4 mr-2" />
+              Push to Remote
+            </>
+          )}
+        </Button>
+
+        {!localProject && (
+          <span className="text-xs text-amber-500/80">No matching local project found</span>
+        )}
+      </div>
+
+      {/* Sync Status */}
+      {syncStatus && (
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <RefreshCw className="h-3 w-3" />
+            <span>Last sync: {formatLastSync(syncStatus.lastSyncAt)}</span>
+          </div>
+          {syncStatus.ticketCount > 0 && <span>{syncStatus.ticketCount} ticket(s)</span>}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -316,6 +584,7 @@ function ProjectSettingsPanel({ project }: { project: OnlineProject }) {
           checked={project.customerAccessEnabled}
           onCheckedChange={handleToggleAccess}
           disabled={isUpdating}
+          onClick={(e) => e.stopPropagation()}
         />
       </div>
 

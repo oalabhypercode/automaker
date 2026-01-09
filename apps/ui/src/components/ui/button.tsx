@@ -90,10 +90,22 @@ function Button({
     );
   }
 
-  const Comp = asChild ? Slot : 'button';
+  // When asChild is true, we must pass EXACTLY one child to Slot
+  // Cannot add spinner or wrap in fragment
+  if (asChild) {
+    return (
+      <Slot
+        data-slot="button"
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      >
+        {children}
+      </Slot>
+    );
+  }
 
   return (
-    <Comp
+    <button
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       disabled={isDisabled}
@@ -101,7 +113,7 @@ function Button({
     >
       {loading && <ButtonSpinner />}
       {children}
-    </Comp>
+    </button>
   );
 }
 

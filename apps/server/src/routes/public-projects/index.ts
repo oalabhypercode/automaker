@@ -55,6 +55,67 @@ const ALLOWED_PUBLIC_ATTACHMENT_TYPES = new Set([
   'image/webp',
 ]);
 
+// =============================================================================
+// 🔍 Description Parsing (Phase 5.3)
+// =============================================================================
+
+type PublicTicketCategory = 'feature' | 'bug' | 'question';
+
+interface ParsedTicketDescription {
+  description: string | null;
+  creatorName: string | null;
+  category: PublicTicketCategory | null;
+}
+
+/**
+ * Parst die strukturierte Description eines Public Tickets.
+ *
+ * Format (aus createPublicTicket):
+ * ```
+ * **📝 Erstellt von:** {creatorName}
+ * **📂 Kategorie:** {emoji} {category}
+ *
+ * ---
+ *
+ * {actual description}
+ * ```
+ */
+function parsePublicTicketDescription(rawDescription: string | null): ParsedTicketDescription {
+  if (!rawDescription) {
+    return { description: null, creatorName: null, category: null };
+  }
+
+  // Extract creatorName: **📝 Erstellt von:** {name}
+  const creatorMatch = rawDescription.match(/\*\*📝 Erstellt von:\*\*\s*(.+)/);
+  const creatorName = creatorMatch?.[1]?.trim() || null;
+
+  // Extract category: **📂 Kategorie:** {emoji} {category}
+  const categoryMatch = rawDescription.match(/\*\*📂 Kategorie:\*\*\s*[✨🐛❓]\s*(\w+)/i);
+  let category: PublicTicketCategory | null = null;
+  if (categoryMatch?.[1]) {
+    const rawCategory = categoryMatch[1].toLowerCase();
+    if (rawCategory === 'feature' || rawCategory === 'bug' || rawCategory === 'frage') {
+      category = rawCategory === 'frage' ? 'question' : (rawCategory as PublicTicketCategory);
+    }
+  }
+
+  // Extract actual description: everything after "---"
+  const separatorIndex = rawDescription.indexOf('---');
+  let description: string | null = null;
+  if (separatorIndex !== -1) {
+    const afterSeparator = rawDescription.slice(separatorIndex + 3).trim();
+    // Filter out placeholder text
+    if (afterSeparator && afterSeparator !== '_Keine Beschreibung angegeben_') {
+      description = afterSeparator;
+    }
+  } else {
+    // No structured format, use raw description
+    description = rawDescription;
+  }
+
+  return { description, creatorName, category };
+}
+
 interface PublicTicketAttachmentInput {
   filename: string;
   mimeType: string;
@@ -349,10 +410,16 @@ export function createPublicProjectsRoutes() {
 
       res.json({
         project,
-        tickets: tickets.map((ticket) => ({
-          ...ticket,
-          attachments: attachmentsByTicket.get(ticket.id) ?? [],
-        })),
+        tickets: tickets.map((ticket) => {
+          const parsed = parsePublicTicketDescription(ticket.description);
+          return {
+            ...ticket,
+            description: parsed.description,
+            creatorName: parsed.creatorName,
+            category: parsed.category,
+            attachments: attachmentsByTicket.get(ticket.id) ?? [],
+          };
+        }),
       });
     } catch (error) {
       console.error('Error fetching public board:', error);

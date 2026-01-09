@@ -225,7 +225,7 @@ app.use('/api/backlog-plan', createBacklogPlanRoutes(events, settingsService));
 app.use('/api/mcp', createMCPRoutes(mcpTestService));
 app.use('/api/pipeline', createPipelineRoutes(pipelineService));
 app.use('/api/ideation', createIdeationRoutes(events, ideationService, featureLoader));
-app.use('/api/pg-sync', createPgSyncRoutes());
+app.use('/api/pg-sync', createPgSyncRoutes(settingsService));
 
 // Create HTTP server
 const server = createServer(app);

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getServerUrlSync } from '@/lib/http-api-client';
 
 // Local type definition to avoid strict dependency on pg-sync package in UI for now
 export interface PublicProjectData {
@@ -27,6 +28,8 @@ export interface PublicTicketAttachment {
   url: string;
 }
 
+export type PublicTicketCategory = 'bug' | 'feature' | 'question';
+
 export interface PublicTicket {
   id: string;
   title: string;
@@ -34,10 +37,12 @@ export interface PublicTicket {
   status: string;
   createdAt: string;
   updatedAt: string;
+  /** Extracted from structured description (Phase 5.3) */
+  creatorName?: string | null;
+  /** Extracted from structured description (Phase 5.3) */
+  category?: PublicTicketCategory | null;
   attachments?: PublicTicketAttachment[];
 }
-
-export type PublicTicketCategory = 'bug' | 'feature' | 'question';
 
 export interface CreatePublicTicketPayload {
   title: string;
@@ -64,7 +69,7 @@ export interface CreatePublicTicketResponse {
   message?: string;
 }
 
-const API_BASE = '/api/public/projects';
+const API_BASE = `${getServerUrlSync()}/api/public/projects`;
 
 async function fetchProjectMeta(slug: string): Promise<PublicProjectData> {
   const res = await fetch(`${API_BASE}/${slug}/meta`, {

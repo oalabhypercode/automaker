@@ -42,6 +42,141 @@ export interface UpdatePublicSettingsPayload {
   theme?: 'dark' | 'light';
 }
 
+export interface SeedLocalProjectInput {
+  name: string;
+  path: string;
+}
+
+export interface SeedLocalProjectsPayload {
+  projects?: SeedLocalProjectInput[];
+  includeTickets?: boolean;
+}
+
+export interface SeedLocalProjectsSummary {
+  projectsProcessed: number;
+  projectsCreated: number;
+  projectsSkipped: number;
+  ticketsCreated: number;
+  ticketsSkipped: number;
+}
+
+export interface SeedLocalProjectsResponse {
+  success: boolean;
+  summary: SeedLocalProjectsSummary;
+}
+
+// =============================================================================
+// 📥 PULL TYPES
+// =============================================================================
+
+/**
+ * Remote Ticket Format (from Postgres)
+ */
+export interface RemoteTicket {
+  id: string;
+  localId: string | null;
+  title: string;
+  description: string | null;
+  status: string;
+  priority: string;
+  labels: string[];
+  createdBy: string | null;
+  assignedTo: string | null;
+  claimedBy: string | null;
+  claimedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+}
+
+/**
+ * Pull Response from Server
+ */
+export interface PullResponse {
+  success: boolean;
+  data?: {
+    tickets: RemoteTicket[];
+    hasMore: boolean;
+    cursor: string | null;
+    syncTimestamp: string;
+    projectId: string;
+    projectName: string;
+  };
+  error?: string;
+}
+
+/**
+ * Pull Options
+ */
+export interface PullOptions {
+  since?: string;
+  limit?: number;
+  cursor?: string;
+}
+
+/**
+ * Pull To Local Request (Phase 4.4)
+ */
+export interface PullToLocalRequest {
+  localProjectPath: string;
+  overwriteExisting?: boolean;
+  limit?: number;
+}
+
+/**
+ * Pull To Local Response (Phase 4.4)
+ */
+export interface PullToLocalResponse {
+  success: boolean;
+  data?: {
+    projectId: string;
+    projectName: string;
+    created: number;
+    updated: number;
+    skipped: number;
+    failed: number;
+    syncTimestamp: string;
+  };
+  error?: string;
+}
+
+/**
+ * Pull Sync Status
+ */
+export interface PullSyncStatus {
+  projectId: string;
+  projectName: string;
+  isProcessing: boolean;
+  lastSyncAt: string | null;
+  ticketCount: number;
+}
+
+// =============================================================================
+// 📤 PUSH TYPES
+// =============================================================================
+
+/**
+ * Push Request Body
+ */
+export interface PushRequest {
+  localProjectPath: string;
+  includeTickets?: boolean;
+  updateExisting?: boolean;
+}
+
+/**
+ * Push Response from Server
+ */
+export interface PushResponse {
+  success: boolean;
+  data: {
+    ticketsCreated: number;
+    ticketsUpdated: number;
+    ticketsSkipped: number;
+  };
+  error?: string;
+}
+
 // =============================================================================
 // 🔍 QUERY HOOKS
 // =============================================================================
@@ -49,6 +184,7 @@ export interface UpdatePublicSettingsPayload {
 const QUERY_KEYS = {
   projects: ['pg-sync', 'projects'] as const,
   project: (id: string) => ['pg-sync', 'projects', id] as const,
+  pullStatus: (id: string) => ['pg-sync', 'pull-status', id] as const,
 };
 
 /**
@@ -97,11 +233,14 @@ export function useUpdatePublicSettings(projectId: string) {
 
   return useMutation({
     mutationFn: async (data: UpdatePublicSettingsPayload) => {
-      const response = await apiFetch(`/api/pg-sync/projects/${projectId}/public-settings`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+      const response = await apiFetch(
+        `/api/pg-sync/projects/${projectId}/public-settings`,
+        'PATCH',
+        {
+          headers: { 'Content-Type': 'application/json' },
+          body: data,
+        }
+      );
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to update settings');
@@ -123,8 +262,7 @@ export function useEnableCustomerAccess(projectId: string) {
 
   return useMutation({
     mutationFn: async () => {
-      const response = await apiFetch(`/api/pg-sync/projects/${projectId}/enable-access`, {
-        method: 'POST',
+      const response = await apiFetch(`/api/pg-sync/projects/${projectId}/enable-access`, 'POST', {
         headers: { 'Content-Type': 'application/json' },
       });
       if (!response.ok) {
@@ -148,8 +286,7 @@ export function useDisableCustomerAccess(projectId: string) {
 
   return useMutation({
     mutationFn: async () => {
-      const response = await apiFetch(`/api/pg-sync/projects/${projectId}/disable-access`, {
-        method: 'POST',
+      const response = await apiFetch(`/api/pg-sync/projects/${projectId}/disable-access`, 'POST', {
         headers: { 'Content-Type': 'application/json' },
       });
       if (!response.ok) {
@@ -173,10 +310,9 @@ export function useSetProjectPassword(projectId: string) {
 
   return useMutation({
     mutationFn: async (password: string) => {
-      const response = await apiFetch(`/api/pg-sync/projects/${projectId}/set-password`, {
-        method: 'POST',
+      const response = await apiFetch(`/api/pg-sync/projects/${projectId}/set-password`, 'POST', {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: { password },
       });
       if (!response.ok) {
         const error = await response.json();
@@ -199,10 +335,13 @@ export function useRemoveProjectPassword(projectId: string) {
 
   return useMutation({
     mutationFn: async () => {
-      const response = await apiFetch(`/api/pg-sync/projects/${projectId}/remove-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const response = await apiFetch(
+        `/api/pg-sync/projects/${projectId}/remove-password`,
+        'POST',
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to remove password');
@@ -224,10 +363,9 @@ export function useUpdateProjectSlug(projectId: string) {
 
   return useMutation({
     mutationFn: async (slug: string) => {
-      const response = await apiFetch(`/api/pg-sync/projects/${projectId}/slug`, {
-        method: 'PATCH',
+      const response = await apiFetch(`/api/pg-sync/projects/${projectId}/slug`, 'PATCH', {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug }),
+        body: { slug },
       });
       if (!response.ok) {
         const error = await response.json();
@@ -238,6 +376,135 @@ export function useUpdateProjectSlug(projectId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.project(projectId) });
+    },
+  });
+}
+
+/**
+ * Seeds local projects into the online-sync database
+ */
+export function useSeedLocalProjects() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: SeedLocalProjectsPayload) => {
+      const response = await apiFetch('/api/pg-sync/projects/seed-local', 'POST', {
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to seed local projects');
+      }
+      return (await response.json()) as SeedLocalProjectsResponse;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects });
+    },
+  });
+}
+
+// =============================================================================
+// 📥 PULL HOOKS
+// =============================================================================
+
+/**
+ * Fetches pull sync status for a project
+ */
+export function usePullSyncStatus(projectId: string) {
+  return useQuery({
+    queryKey: QUERY_KEYS.pullStatus(projectId),
+    queryFn: async () => {
+      const response = await apiFetch(`/api/pg-sync/pull/status?projectId=${projectId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch sync status');
+      }
+      const result = await response.json();
+      return result.data as PullSyncStatus;
+    },
+    enabled: !!projectId,
+    refetchInterval: false,
+  });
+}
+
+/**
+ * Pulls tickets from remote Postgres database
+ */
+export function usePullFromRemote(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (options: PullOptions | void) => {
+      const response = await apiFetch('/api/pg-sync/pull', 'POST', {
+        headers: { 'Content-Type': 'application/json' },
+        body: { projectId, ...(options || {}) },
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to pull from remote');
+      }
+      return (await response.json()) as PullResponse;
+    },
+    onSuccess: () => {
+      // Invalidate both projects list and pull status
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.pullStatus(projectId) });
+    },
+  });
+}
+
+/**
+ * Pulls tickets from remote Postgres and writes them as local feature.json files
+ * This is the main sync hook for Phase 4.4 - Local Feature Integration
+ */
+export function usePullToLocal(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: PullToLocalRequest) => {
+      const response = await apiFetch('/api/pg-sync/pull/to-local', 'POST', {
+        headers: { 'Content-Type': 'application/json' },
+        body: { projectId, ...request },
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to pull to local');
+      }
+      return (await response.json()) as PullToLocalResponse;
+    },
+    onSuccess: () => {
+      // Invalidate both projects list and pull status
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.pullStatus(projectId) });
+    },
+  });
+}
+
+// =============================================================================
+// 📤 PUSH HOOKS
+// =============================================================================
+
+/**
+ * Pushes local tickets to remote Postgres database
+ */
+export function usePushToRemote(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: PushRequest) => {
+      const response = await apiFetch(`/api/pg-sync/projects/${projectId}/push`, 'POST', {
+        headers: { 'Content-Type': 'application/json' },
+        body: request,
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to push to remote');
+      }
+      return (await response.json()) as PushResponse;
+    },
+    onSuccess: () => {
+      // Invalidate projects list to refresh ticket counts
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects });
     },
   });
 }

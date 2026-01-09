@@ -24,6 +24,46 @@ const BASE_COLUMNS = [
 ];
 const ARCHIVED_COLUMN = { id: 'archived', title: 'Archived', colorClass: 'bg-muted-foreground/40' };
 
+const COLUMN_GLOW_COLORS: Record<string, string> = {
+  backlog: 'bg-slate-500',
+  todo: 'bg-blue-500',
+  in_progress: 'bg-amber-500',
+  review: 'bg-purple-500',
+  done: 'bg-emerald-500',
+  archived: 'bg-gray-500',
+};
+
+const COLUMN_BADGE_COLORS: Record<string, string> = {
+  backlog: 'bg-slate-500/20 text-slate-400 border-slate-500/30',
+  todo: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  in_progress: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+  review: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+  done: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+  archived: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+};
+
+function EmptyColumnState({ searchQuery }: { searchQuery?: string }) {
+  return (
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center',
+        'py-8 px-4 rounded-xl',
+        'bg-white/5 border border-dashed border-white/10'
+      )}
+    >
+      <div className="text-2xl mb-2">📭</div>
+      <p className="text-sm text-muted-foreground text-center">
+        {searchQuery ? 'Keine Tickets gefunden' : 'Noch keine Tickets'}
+      </p>
+      {searchQuery && (
+        <p className="text-xs text-muted-foreground/70 mt-1 text-center">
+          Versuche eine andere Suche
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function PublicBoardView({
   project,
   tickets,
@@ -90,8 +130,8 @@ export function PublicBoardView({
   }, [columns, ticketsToDisplay]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-8">
+    <div className="h-screen overflow-y-auto bg-background">
+      <div className="mx-auto max-w-6xl px-4 py-8 md:px-8 pb-16">
         <header className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex items-center gap-4">
@@ -208,35 +248,84 @@ export function PublicBoardView({
         )}
 
         <section className="mt-8">
-          <div className="flex gap-4 overflow-x-auto pb-4">
+          <div
+            className={cn(
+              'flex gap-4 overflow-x-auto pb-4',
+              'scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent',
+              'snap-x snap-mandatory md:snap-none'
+            )}
+          >
             {columns.map((column) => {
               const columnTickets = ticketsByStatus.get(column.id) ?? [];
               return (
-                <div key={column.id} className="min-w-[260px] max-w-[320px] flex-1">
-                  <div className="rounded-2xl border border-border/70 bg-card/60 p-4 h-full">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className={cn('h-2.5 w-2.5 rounded-full', column.colorClass)} />
-                        <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                          {column.title}
-                        </h2>
-                      </div>
-                      <Badge variant="muted" size="sm">
-                        {columnTickets.length}
-                      </Badge>
-                    </div>
-                    <div className="mt-4 space-y-3">
-                      {columnTickets.length === 0 ? (
-                        <div className="text-xs text-muted-foreground">
-                          {searchQuery
-                            ? 'No tickets found matching your search.'
-                            : 'No tickets right now.'}
-                        </div>
-                      ) : (
-                        columnTickets.map((ticket) => (
-                          <PublicTicketCard key={ticket.id} ticket={ticket} />
-                        ))
+                <div
+                  key={column.id}
+                  className={cn(
+                    'min-w-[85vw] md:min-w-[280px] max-w-[90vw] md:max-w-[340px] flex-1',
+                    'relative overflow-hidden',
+                    'snap-start md:snap-align-none'
+                  )}
+                >
+                  {/* Column Card with Glasmorphism */}
+                  <div
+                    className={cn(
+                      'h-full rounded-2xl',
+                      'bg-black/30 backdrop-blur-sm',
+                      'border border-white/10',
+                      'p-4'
+                    )}
+                  >
+                    {/* Subtle Top-Glow basierend auf Status */}
+                    <div
+                      className={cn(
+                        'absolute top-0 left-1/2 -translate-x-1/2',
+                        'w-[200px] h-[100px] rounded-[100%] blur-[60px]',
+                        'pointer-events-none',
+                        COLUMN_GLOW_COLORS[column.id]
                       )}
+                      style={{ opacity: 0.15 }}
+                    />
+
+                    {/* Header */}
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={cn(
+                              'h-3 w-3 rounded-full',
+                              'ring-2 ring-offset-2 ring-offset-black/50',
+                              column.colorClass
+                            )}
+                          />
+                          <h2 className="text-sm font-semibold uppercase tracking-wide">
+                            {column.title}
+                          </h2>
+                        </div>
+                        <Badge
+                          variant="muted"
+                          size="sm"
+                          className={cn(
+                            'min-w-[24px] justify-center',
+                            columnTickets.length > 0 && COLUMN_BADGE_COLORS[column.id]
+                          )}
+                        >
+                          {columnTickets.length}
+                        </Badge>
+                      </div>
+
+                      {/* Separator */}
+                      <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4" />
+
+                      {/* Tickets */}
+                      <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+                        {columnTickets.length === 0 ? (
+                          <EmptyColumnState searchQuery={searchQuery} />
+                        ) : (
+                          columnTickets.map((ticket) => (
+                            <PublicTicketCard key={ticket.id} ticket={ticket} />
+                          ))
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

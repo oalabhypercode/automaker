@@ -172,15 +172,61 @@ npm run dev:electron:debug
 
 ## 🧪 Kunden-Board testen
 
-### 1. Projekt mit Public Access erstellen
+### 1. Projekt zur Online-Datenbank synchronisieren
+
+**Wichtig:** Die "Online Sync" Seite zeigt nur Projekte, die bereits zur Postgres-Datenbank synchronisiert wurden. Neue lokale Projekte erscheinen hier erst nach der ersten Synchronisierung.
+
+#### Schritt 1: Projekt erstellen/öffnen
 
 1. Öffne Automaker (http://localhost:3007)
+2. Erstelle ein neues Projekt oder öffne ein bestehendes
+3. Erstelle mindestens ein Feature/Ticket im Board
+
+> **Hinweis:** Beim Erstellen des ersten Features wird das Projekt automatisch zur Online-Datenbank synchronisiert. Dies geschieht im Hintergrund über den Sync-Mechanismus.
+
+#### Schritt 2: Synchronisierung prüfen
+
+1. Warte einige Sekunden (Auto-Sync Intervall)
 2. Klicke in der Sidebar auf **"Online Sync"** (Globe Icon)
-3. Du siehst alle online-synchronisierten Projekte
-4. Klicke auf ein Projekt um es aufzuklappen
-5. Aktiviere **"Public Access"** (Toggle)
-6. Der Slug wird automatisch generiert (z.B. `mein-projekt`)
-7. Optional: Passwort setzen für geschützten Zugang
+3. Dein Projekt sollte jetzt in der Liste erscheinen
+
+> **Falls das Projekt nicht erscheint:**
+>
+> - Prüfe ob `DATABASE_URL` in `apps/server/.env` korrekt ist
+> - Prüfe die Server-Konsole auf Fehler
+> - Stelle sicher, dass die DB-Migration gelaufen ist (`npm run db:migrate` in `libs/pg-sync`)
+
+#### Alternative: Bestehende Projekte manuell migrieren
+
+Für bestehende lokale Projekte gibt es ein Seed-Skript, das Projekte zur Datenbank migriert:
+
+```bash
+cd libs/pg-sync
+
+# Empfohlen: Projekt-Pfad direkt angeben
+npx tsx --env-file=../../apps/server/.env scripts/seed-local-projects.ts "D:/Projects/mein-projekt"
+
+# Mehrere Projekte auf einmal
+npx tsx --env-file=../../apps/server/.env scripts/seed-local-projects.ts "/pfad/zu/projekt1" "/pfad/zu/projekt2"
+
+# Alternativ: Aus settings.json laden (falls vorhanden)
+npx tsx --env-file=../../apps/server/.env scripts/seed-local-projects.ts
+```
+
+**Wichtig:** Gib den **vollständigen Pfad** zu deinem Projekt-Ordner an. Das Projekt muss ein `.automaker/features/` Verzeichnis mit Feature-Dateien haben.
+
+Das Skript:
+
+- Erstellt das Projekt in der Postgres-Datenbank
+- Migriert alle Features/Tickets aus `.automaker/features/`
+- Überspringt bereits existierende Projekte/Tickets
+
+### 2. Public Access aktivieren
+
+1. In der "Online Sync" Seite: Klicke auf dein Projekt um es aufzuklappen
+2. Aktiviere **"Public Access"** (Toggle)
+3. Der Slug wird automatisch aus dem Projektnamen generiert (z.B. `mein-projekt`)
+4. Optional: Passwort setzen für geschützten Zugang
 
 ### Verfügbare Einstellungen:
 
@@ -195,7 +241,7 @@ npm run dev:electron:debug
 | **Theme**                 | Dark/Light Theme für das Kunden-Board           |
 | **Welcome Message**       | Optionale Begrüßungsnachricht                   |
 
-### 2. Kunden-Board aufrufen
+### 3. Kunden-Board aufrufen
 
 Öffne im Browser:
 
@@ -203,7 +249,7 @@ npm run dev:electron:debug
 http://localhost:3007/p/mein-projekt
 ```
 
-### 3. Ticket mit Bild erstellen
+### 4. Ticket mit Bild erstellen
 
 1. Im Kunden-Board: "Submit a request" klicken
 2. Titel eingeben
@@ -214,7 +260,7 @@ http://localhost:3007/p/mein-projekt
    - Formate: JPG, PNG, GIF, WebP
 5. "Submit ticket" klicken
 
-### 4. Prüfen ob Upload funktioniert
+### 5. Prüfen ob Upload funktioniert
 
 - Das Ticket erscheint sofort im Board
 - Bilder werden als Thumbnail angezeigt

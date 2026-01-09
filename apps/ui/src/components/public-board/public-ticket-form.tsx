@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { ImageIcon, Loader2, X } from 'lucide-react';
+import { ChevronDown, ImageIcon, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 import {
   extractBase64Data,
@@ -47,6 +48,7 @@ export function PublicTicketForm({ slug }: PublicTicketFormProps) {
   const createTicket = usePublicCreateTicket(slug);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [creatorName, setCreatorName] = useState('');
   const [description, setDescription] = useState('');
@@ -198,160 +200,191 @@ export function PublicTicketForm({ slug }: PublicTicketFormProps) {
   );
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-2xl border border-border/70 bg-card/60 p-5 md:p-6"
-    >
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold">Submit a request</h2>
-        <p className="text-sm text-muted-foreground">
-          Share feedback or upload screenshots to help us understand your request.
-        </p>
-      </div>
-
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="public-ticket-title">Title *</Label>
-          <Input
-            id="public-ticket-title"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Short summary"
-            className={fieldErrors.title ? 'border-destructive' : undefined}
-          />
-          {fieldErrors.title && <p className="text-xs text-destructive">{fieldErrors.title}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="public-ticket-name">Your name *</Label>
-          <Input
-            id="public-ticket-name"
-            value={creatorName}
-            onChange={(event) => setCreatorName(event.target.value)}
-            placeholder="How should we address you?"
-            className={fieldErrors.creatorName ? 'border-destructive' : undefined}
-          />
-          {fieldErrors.creatorName && (
-            <p className="text-xs text-destructive">{fieldErrors.creatorName}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-4 space-y-2">
-        <Label htmlFor="public-ticket-category">Category</Label>
-        <Select
-          value={category}
-          onValueChange={(value) => setCategory(value as PublicTicketCategory)}
-        >
-          <SelectTrigger id="public-ticket-category">
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="feature">Feature request</SelectItem>
-            <SelectItem value="bug">Bug report</SelectItem>
-            <SelectItem value="question">Question</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="mt-4 space-y-2">
-        <Label htmlFor="public-ticket-description">Description</Label>
-        <Textarea
-          id="public-ticket-description"
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          placeholder="Add details so we can help faster"
-          rows={4}
-        />
-      </div>
-
-      <div className="mt-4 space-y-2">
-        <div className="flex items-center justify-between">
-          <Label>Attachments</Label>
-          <span className="text-xs text-muted-foreground">{attachmentCountLabel}</span>
-        </div>
-
-        <div
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          className={cn(
-            'rounded-xl border border-dashed border-border/60 bg-muted/20 p-4 transition',
-            isDragOver && 'border-primary/60 bg-primary/5'
-          )}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
-            multiple
-            onChange={handleFileChange}
-            className="hidden"
-          />
-
-          <div className="flex flex-col items-center gap-2 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <ImageIcon className="h-5 w-5" />
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-xl border border-border/70 bg-card/60 overflow-hidden"
+      >
+        {/* Collapsible Header - Always visible */}
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            className="flex w-full items-center justify-between p-3 md:p-4 hover:bg-muted/30 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <ImageIcon className="h-4 w-4" />
+              </div>
+              <div className="text-left">
+                <h2 className="text-sm font-semibold">Submit a request</h2>
+                <p className="text-xs text-muted-foreground">Share feedback or report an issue</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium">Drop images here</p>
-              <p className="text-xs text-muted-foreground">
-                or{' '}
-                <button
-                  type="button"
-                  className="underline"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  browse files
-                </button>
-              </p>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Max {MAX_ATTACHMENTS} images, {formatFileSize(MAX_ATTACHMENT_BYTES)} each
-            </p>
-          </div>
-        </div>
+            <ChevronDown
+              className={cn(
+                'h-4 w-4 text-muted-foreground transition-transform duration-200',
+                isOpen && 'rotate-180'
+              )}
+            />
+          </button>
+        </CollapsibleTrigger>
 
-        {attachments.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {attachments.map((attachment) => (
-              <div
-                key={attachment.id}
-                className="relative overflow-hidden rounded-lg border border-border/60 bg-background"
-              >
-                <img
-                  src={attachment.previewUrl}
-                  alt={attachment.filename}
-                  className="h-24 w-full object-cover"
+        {/* Collapsible Content - Form fields */}
+        <CollapsibleContent>
+          <div className="border-t border-border/50 p-3 md:p-4 space-y-3">
+            {/* Title & Name - 2 columns */}
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="public-ticket-title" className="text-xs">
+                  Title *
+                </Label>
+                <Input
+                  id="public-ticket-title"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  placeholder="Short summary"
+                  className={cn('h-8 text-sm', fieldErrors.title && 'border-destructive')}
                 />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveAttachment(attachment.id)}
-                  className="absolute right-2 top-2 rounded-full bg-background/80 p-1 text-muted-foreground hover:text-foreground"
+                {fieldErrors.title && (
+                  <p className="text-xs text-destructive">{fieldErrors.title}</p>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="public-ticket-name" className="text-xs">
+                  Your name *
+                </Label>
+                <Input
+                  id="public-ticket-name"
+                  value={creatorName}
+                  onChange={(event) => setCreatorName(event.target.value)}
+                  placeholder="How should we address you?"
+                  className={cn('h-8 text-sm', fieldErrors.creatorName && 'border-destructive')}
+                />
+                {fieldErrors.creatorName && (
+                  <p className="text-xs text-destructive">{fieldErrors.creatorName}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Category & Description - side by side on desktop */}
+            <div className="grid gap-3 md:grid-cols-[200px_1fr]">
+              <div className="space-y-1">
+                <Label htmlFor="public-ticket-category" className="text-xs">
+                  Category
+                </Label>
+                <Select
+                  value={category}
+                  onValueChange={(value) => setCategory(value as PublicTicketCategory)}
                 >
-                  <X className="h-3 w-3" />
-                </button>
-                <div className="px-2 py-1 text-xs text-muted-foreground truncate">
-                  {attachment.filename}
+                  <SelectTrigger id="public-ticket-category" className="h-8 text-sm">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="feature">Feature request</SelectItem>
+                    <SelectItem value="bug">Bug report</SelectItem>
+                    <SelectItem value="question">Question</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="public-ticket-description" className="text-xs">
+                  Description
+                </Label>
+                <Textarea
+                  id="public-ticket-description"
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  placeholder="Add details so we can help faster"
+                  rows={2}
+                  className="resize-y min-h-[60px] max-h-[200px] text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Attachments - compact */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Attachments</Label>
+                <span className="text-xs text-muted-foreground">{attachmentCountLabel}</span>
+              </div>
+
+              <div
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                className={cn(
+                  'rounded-lg border border-dashed border-border/60 bg-muted/20 p-3 transition',
+                  isDragOver && 'border-primary/60 bg-primary/5'
+                )}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+                  multiple
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+
+                <div className="flex items-center justify-center gap-3 text-center">
+                  <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">
+                    Drop images or{' '}
+                    <button
+                      type="button"
+                      className="underline hover:text-foreground"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      browse
+                    </button>
+                    {' · '}Max {MAX_ATTACHMENTS}, {formatFileSize(MAX_ATTACHMENT_BYTES)} each
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
 
-      <div className="mt-6 flex items-center justify-end">
-        <Button type="submit" disabled={createTicket.isPending}>
-          {createTicket.isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Submitting...
-            </>
-          ) : (
-            'Submit ticket'
-          )}
-        </Button>
-      </div>
-    </form>
+              {attachments.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {attachments.map((attachment) => (
+                    <div
+                      key={attachment.id}
+                      className="relative group overflow-hidden rounded-md border border-border/60 bg-background"
+                    >
+                      <img
+                        src={attachment.previewUrl}
+                        alt={attachment.filename}
+                        className="h-16 w-16 object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveAttachment(attachment.id)}
+                        className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-4 w-4 text-white" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex items-center justify-end pt-1">
+              <Button type="submit" size="sm" disabled={createTicket.isPending}>
+                {createTicket.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit ticket'
+                )}
+              </Button>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </form>
+    </Collapsible>
   );
 }

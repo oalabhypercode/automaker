@@ -54,6 +54,10 @@ export interface Feature {
   error?: string;
   summary?: string;
   startedAt?: string;
+  // Sync-Metadaten für Postgres Online-Sync
+  remoteId?: string; // Postgres Ticket-ID
+  syncedAt?: string; // Letzter Sync-Zeitpunkt (ISO String)
+  syncSource?: 'local' | 'remote'; // Woher das Feature ursprünglich kommt
   [key: string]: unknown; // Keep catch-all for extensibility
 }
 

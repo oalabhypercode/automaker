@@ -12,7 +12,7 @@ interface SupabaseStorageConfig {
 }
 
 const DEFAULT_BUCKET = 'public-ticket-attachments';
-const DEFAULT_SIGNED_URL_TTL_SECONDS = 60 * 60; // 1 hour
+const DEFAULT_SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 365; // 1 year (31,536,000 seconds)
 
 function normalizeSupabaseUrl(url: string): string {
   return url.endsWith('/') ? url.slice(0, -1) : url;
