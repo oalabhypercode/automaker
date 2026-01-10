@@ -4,7 +4,7 @@ ULTRATHINK
 
 > **Projekt:** Automaker Offline-First + Postgres Online-Sync
 > **Stand:** 2026-01-09
-> **Status:** 🟢 Phase 0-5 KOMPLETT ABGESCHLOSSEN
+> **Status:** ✅ Phase 6 ABGESCHLOSSEN - Sync-Buttons im Kanban-Board
 
 ---
 
@@ -336,6 +336,14 @@ libs/
 | 2026-01-09 | 5.2   | **IMPLEMENTIERT:** Ticket Card Redesign - Glasmorphism Cards, Meta-Zeile, CategoryBadge, relative-time.ts (~330 Zeilen)                                                  |
 | 2026-01-09 | 5.4   | **IMPLEMENTIERT:** Ticket Detail Dialog - Premium Glasmorphism, Status-Glow, Meta-Box, formatFullDate (~120 Zeilen)                                                      |
 | 2026-01-09 | 5.5   | **IMPLEMENTIERT:** Board Column Redesign - Glasmorphism Columns, Status-Glow, EmptyState, Snap-Scrolling (~90 Zeilen)                                                    |
+| 2026-01-09 | 6.0   | 🔴 **KRITISCH:** Phase 6 erstellt - Sync-Buttons an falscher Stelle identifiziert                                                                                        |
+| 2026-01-09 | 6.0   | Planung erstellt: Übersicht & Problem-Analyse                                                                                                                            |
+| 2026-01-09 | 6.1   | Planung erstellt: Sync-Buttons aus online-sync-view.tsx entfernen                                                                                                        |
+| 2026-01-09 | 6.2   | Planung erstellt: Sync-Buttons in board-view.tsx integrieren                                                                                                             |
+| 2026-01-09 | 6.3   | Planung erstellt: Vereinfachte Pull/Push Logik (2 Buttons)                                                                                                               |
+| 2026-01-09 | 6.1   | **IMPLEMENTIERT:** ProjectSyncButtons aus online-sync-view.tsx entfernt (~208 Zeilen)                                                                                    |
+| 2026-01-09 | 6.2   | **IMPLEMENTIERT:** DatabaseSyncButtons in board-view.tsx integriert (~195 Zeilen) - Neue Komponente + BoardHeader Props                                                  |
+| 2026-01-09 | 6.3   | **IMPLEMENTIERT:** use-database-sync.ts Hook (~200 Zeilen) - Refactoring der Sync-Logik in dedizierten Hook, Komponente auf 133 Zeilen reduziert                         |
 
 ---
 
@@ -371,41 +379,61 @@ libs/
 
 **🎉 Phase 5 ABGESCHLOSSEN - Public Board hat jetzt Premium Glasmorphism-Design!**
 
+### Phase 6: ✅ Sync-Button UX-Korrektur ABGESCHLOSSEN
+
+> **🎉 GELÖST:** Die Sync-Buttons wurden erfolgreich korrigiert!
+>
+> - Buttons sind jetzt im Kanban-Board `/board` (board-header.tsx)
+> - 2 klare Buttons: Pull und Push
+> - Dedizierter Hook `use-database-sync.ts` für wiederverwendbare Sync-Logik
+
+| #   | Planung                                         | Status           | Datei                                   |
+| --- | ----------------------------------------------- | ---------------- | --------------------------------------- |
+| 6.0 | Übersicht & Problem-Analyse                     | 📋 Erstellt      | `tasks/phase-6.0-sync-button-fix.md`    |
+| 6.1 | Sync-Buttons aus online-sync-view.tsx entfernen | ✅ Implementiert | `tasks/phase-6.1-remove-old-buttons.md` |
+| 6.2 | Sync-Buttons in board-view.tsx integrieren      | ✅ Implementiert | `tasks/phase-6.2-board-integration.md`  |
+| 6.3 | Vereinfachte Pull/Push Logik (2 Buttons)        | ✅ Implementiert | `tasks/phase-6.3-simplified-sync.md`    |
+
+**🎯 Ziel:** 2 klare Buttons im Kanban-Board (`/board`)
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  KANBAN BOARD (/board)                                   │
+├─────────────────────────────────────────────────────────┤
+│  [Pull from Database]  [Push to Database]               │
+│                                                         │
+│  ┌─────────┐  ┌─────────────┐  ┌────────┐  ┌─────────┐ │
+│  │ BACKLOG │  │ IN PROGRESS │  │ REVIEW │  │  DONE   │ │
+│  └─────────┘  └─────────────┘  └────────┘  └─────────┘ │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Was die Buttons machen sollen:**
+
+1. **Pull from Database** → Holt Tickets aus Postgres DB → Zeigt sie im Kanban-Board
+2. **Push to Database** → Sendet lokale Tickets zur Postgres DB
+
 ---
 
-## 📌 Anleitung für nächsten Chat (Phase 5 - Public Board Redesign)
+## 📌 Anleitung für nächsten Chat
 
-1. `docs/pg-online-sync/GLOBAL-TASKLIST.md` - Diese Datei (aktueller Stand)
-2. `docs/pg-online-sync/tasks/phase-5.0-public-board-redesign-overview.md` - Übersicht
-3. `docs/pg-online-sync/tasks/phase-5.1-attachment-url-fix.md` - Erste Phase (KRITISCH)
+**🎉 Phase 0-6 VOLLSTÄNDIG ABGESCHLOSSEN!**
 
-**Prompt für nächsten Chat:**
+Das Postgres Online-Sync Feature ist komplett implementiert:
 
-```
-ULTRATHINK
+- ✅ Datenbank-Schema & Sync-Engine (Phase 0-1)
+- ✅ Interne Web-UI (Phase 2)
+- ✅ Kunden-Board mit Passwortschutz (Phase 3)
+- ✅ Server-Routen & UI-Integration (Phase 4)
+- ✅ Premium Glasmorphism-Design für Public Board (Phase 5)
+- ✅ Sync-Buttons im Kanban-Board (Phase 6)
 
-🎨 Phase 5: Public Board UI/UX Redesign
+**Referenz-Dateien für Wartung/Erweiterung:**
 
-Problem: Das Kunden-Dashboard unter /p/slug sieht unprofessionell aus:
-- Attachments laden nicht (Signed URLs abgelaufen)
-- Markdown-Syntax sichtbar in der UI
-- Kein Premium-Design (Glasmorphism)
-
-Aktuelle Phase: 5.1 (Attachment URL Fix) - KRITISCH
-
-Referenziere:
-- docs/pg-online-sync/GLOBAL-TASKLIST.md
-- docs/pg-online-sync/tasks/phase-5.0-public-board-redesign-overview.md
-- docs/pg-online-sync/tasks/phase-5.1-attachment-url-fix.md
-- shared-docs/design/liquid-glass-guide.md (für Glasmorphism)
-- shared-docs/CODING-RULES.md
-
-Vergiss nicht:
-- Clean Code, DRY, SOLID, KISS
-- npx tsc --noEmit für TypeScript-Check
-- Mobile-First Design (Regel 7.6)
-- Keine backdrop-blur auf Mobile (Regel 12.1)
-```
+1. `docs/pg-online-sync/GLOBAL-TASKLIST.md` - Diese Datei (Gesamtübersicht)
+2. `apps/ui/src/hooks/use-database-sync.ts` - Sync-Hook
+3. `apps/ui/src/components/views/board-view/database-sync-buttons.tsx` - Sync-Buttons
+4. `libs/pg-sync/` - Postgres Sync Library
 
 ---
 

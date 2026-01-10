@@ -1076,6 +1076,8 @@ export function BoardView() {
       {/* Header */}
       <BoardHeader
         projectName={currentProject.name}
+        projectPath={currentProject.path}
+        onFeaturesUpdated={loadFeatures}
         maxConcurrency={maxConcurrency}
         runningAgentsCount={runningAutoTasks.length}
         onConcurrencyChange={setMaxConcurrency}

@@ -8,9 +8,12 @@ import { KeyboardShortcut } from '@/hooks/use-keyboard-shortcuts';
 import { ClaudeUsagePopover } from '@/components/claude-usage-popover';
 import { useAppStore } from '@/store/app-store';
 import { useSetupStore } from '@/store/setup-store';
+import { DatabaseSyncButtons } from './database-sync-buttons';
 
 interface BoardHeaderProps {
   projectName: string;
+  projectPath: string | null;
+  onFeaturesUpdated: () => void;
   maxConcurrency: number;
   runningAgentsCount: number;
   onConcurrencyChange: (value: number) => void;
@@ -28,6 +31,8 @@ const controlContainerClass =
 
 export function BoardHeader({
   projectName,
+  projectPath,
+  onFeaturesUpdated,
   maxConcurrency,
   runningAgentsCount,
   onConcurrencyChange,
@@ -98,6 +103,15 @@ export function BoardHeader({
               data-testid="auto-mode-toggle"
             />
           </div>
+        )}
+
+        {/* Database Sync Buttons - only show after mount */}
+        {isMounted && (
+          <DatabaseSyncButtons
+            projectPath={projectPath}
+            projectName={projectName}
+            onFeaturesUpdated={onFeaturesUpdated}
+          />
         )}
 
         <Button
