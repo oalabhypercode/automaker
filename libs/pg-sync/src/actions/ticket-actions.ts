@@ -7,7 +7,7 @@
  * @see docs/pg-online-sync/tasks/phase-1.2-finder-actions.md
  */
 
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, inArray, isNull } from 'drizzle-orm';
 import { getDb } from '../db/client.js';
 import { tickets, ticketEvents } from '../db/schema/index.js';
 import type {
@@ -237,6 +237,79 @@ export async function deleteTicket(id: string, userId?: string): Promise<void> {
       updatedAt: new Date(),
     })
     .where(eq(tickets.id, id));
+}
+
+/**
+ * Ergebnis eines Batch-Delete Vorgangs
+ */
+export interface BatchDeleteResult {
+  /** Anzahl erfolgreich gelöschter Tickets */
+  deletedCount: number;
+  /** IDs die nicht gefunden wurden */
+  notFoundIds: string[];
+  /** IDs bei denen ein Fehler auftrat */
+  failedIds: string[];
+}
+
+/**
+ * Soft-Delete mehrerer Tickets (Batch-Operation)
+ *
+ * Löscht mehrere Tickets in einem Vorgang. Tickets die nicht gefunden
+ * werden, werden in `notFoundIds` zurückgegeben. Die Operation ist
+ * "best effort" - wenn ein Ticket fehlschlägt, werden die anderen
+ * trotzdem verarbeitet.
+ *
+ * @param ids - Array von Ticket-IDs die gelöscht werden sollen
+ * @param userId - Optional: User-ID für Audit-Trail
+ * @returns BatchDeleteResult mit Statistiken
+ */
+export async function deleteMultipleTickets(
+  ids: string[],
+  userId?: string
+): Promise<BatchDeleteResult> {
+  const db = getDb();
+  const now = new Date();
+
+  const result: BatchDeleteResult = {
+    deletedCount: 0,
+    notFoundIds: [],
+    failedIds: [],
+  };
+
+  // Leeres Array? Schnell zurück
+  if (ids.length === 0) {
+    return result;
+  }
+
+  try {
+    // Ein einziger Update für alle gültigen IDs
+    // Nutze inArray für effiziente Batch-Operation
+    const updateResult = await db
+      .update(tickets)
+      .set({
+        deletedAt: now,
+        updatedAt: now,
+      })
+      .where(and(inArray(tickets.id, ids), isNull(tickets.deletedAt)))
+      .returning({ id: tickets.id });
+
+    // Zähle erfolgreiche Deletes
+    result.deletedCount = updateResult.length;
+
+    // Finde nicht gefundene IDs
+    const deletedIds = new Set(updateResult.map((r) => r.id));
+    for (const id of ids) {
+      if (!deletedIds.has(id)) {
+        result.notFoundIds.push(id);
+      }
+    }
+  } catch (error) {
+    // Bei einem Fehler: Alle IDs als fehlgeschlagen markieren
+    console.error('Error in batch delete:', error);
+    result.failedIds = [...ids];
+  }
+
+  return result;
 }
 
 /**
@@ -517,6 +590,118 @@ export async function removeTicketLabel(
   });
 
   return ticket;
+}
+
+// =============================================================================
+// 🔄 BATCH STATUS UPDATE (Phase 7.2)
+// =============================================================================
+
+/**
+ * Ergebnis eines Batch-Status-Update Vorgangs
+ */
+export interface BatchStatusResult {
+  /** Anzahl erfolgreich aktualisierter Tickets */
+  updatedCount: number;
+  /** IDs bei denen ein Fehler auftrat (nicht gefunden oder Update fehlgeschlagen) */
+  failedIds: string[];
+}
+
+/**
+ * Einzelnes Status-Update für ein Ticket
+ */
+export interface StatusUpdate {
+  /** Postgres Ticket-ID */
+  ticketId: string;
+  /** Neuer Status (Remote-Format: backlog, todo, in_progress, review, done, archived) */
+  status: TicketStatusType;
+  /** Optional: Local Feature-ID für Audit-Trail */
+  localId?: string;
+}
+
+/**
+ * Aktualisiert den Status mehrerer Tickets (Batch-Operation)
+ *
+ * Diese Funktion aktualisiert den Status mehrerer Tickets in einem Vorgang.
+ * Die Operation ist "best effort" - wenn ein Ticket fehlschlägt, werden
+ * die anderen trotzdem verarbeitet.
+ *
+ * WICHTIG: Diese Funktion überspringt die Status-Transition-Validierung,
+ * da der Status bereits vom Frontend gemappt wurde und die lokale
+ * Kanban-Board-Logik die Validierung übernimmt.
+ *
+ * @param updates - Array von Status-Updates
+ * @param userId - Optional: User-ID für Audit-Trail
+ * @returns BatchStatusResult mit Statistiken
+ */
+export async function updateMultipleTicketsStatus(
+  updates: StatusUpdate[],
+  userId?: string
+): Promise<BatchStatusResult> {
+  const db = getDb();
+  const now = new Date();
+
+  const result: BatchStatusResult = {
+    updatedCount: 0,
+    failedIds: [],
+  };
+
+  // Leeres Array? Schnell zurück
+  if (updates.length === 0) {
+    return result;
+  }
+
+  // Gruppiere Updates nach Status für effizientere Batch-Operationen
+  const updatesByStatus = new Map<TicketStatusType, string[]>();
+  for (const update of updates) {
+    const ids = updatesByStatus.get(update.status) ?? [];
+    ids.push(update.ticketId);
+    updatesByStatus.set(update.status, ids);
+  }
+
+  // Verarbeite jede Status-Gruppe
+  for (const [status, ticketIds] of updatesByStatus) {
+    try {
+      // Ein einziger Update für alle Tickets mit demselben Ziel-Status
+      // Inkludiere projectId für Event-Erstellung
+      const updateResult = await db
+        .update(tickets)
+        .set({
+          status,
+          version: sql`${tickets.version} + 1`,
+          updatedAt: now,
+        })
+        .where(and(inArray(tickets.id, ticketIds), isNull(tickets.deletedAt)))
+        .returning({ id: tickets.id, projectId: tickets.projectId });
+
+      // Zähle erfolgreiche Updates
+      result.updatedCount += updateResult.length;
+
+      // Finde fehlgeschlagene IDs (nicht gefunden oder bereits gelöscht)
+      const updatedIds = new Set(updateResult.map((r) => r.id));
+      for (const id of ticketIds) {
+        if (!updatedIds.has(id)) {
+          result.failedIds.push(id);
+        }
+      }
+
+      // Events für erfolgreiche Updates erstellen
+      for (const updated of updateResult) {
+        await createEvent(db, {
+          ticketId: updated.id,
+          projectId: updated.projectId,
+          type: 'status_changed',
+          payload: { newStatus: status, source: 'batch_update' },
+          createdBy: userId,
+        });
+      }
+    } catch (error) {
+      // Bei einem Fehler: Alle IDs dieser Gruppe als fehlgeschlagen markieren
+      console.error(`Error in batch status update for status '${status}':`, error);
+      result.failedIds.push(...ticketIds);
+    }
+  }
+
+  return result;
 }
 
 // =============================================================================

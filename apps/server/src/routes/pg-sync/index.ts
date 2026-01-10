@@ -28,6 +28,8 @@ import {
 } from '@automaker/pg-sync';
 import { createPullRoutes } from './pull.js';
 import { createPushRoutes } from './push.js';
+import { createDeleteRoutes } from './delete.js';
+import { createStatusRoutes } from './status.js';
 
 type LocalProjectInput = {
   name: string;
@@ -515,6 +517,16 @@ export function createPgSyncRoutes(settingsService?: SettingsService) {
   // 🔼 Push Routes (Phase 4.3)
   // ==========================================================================
   router.use('/', createPushRoutes());
+
+  // ==========================================================================
+  // 🗑️ Delete Routes (Phase 7.1)
+  // ==========================================================================
+  router.use('/', createDeleteRoutes());
+
+  // ==========================================================================
+  // 🔄 Status Routes (Phase 7.2)
+  // ==========================================================================
+  router.use('/', createStatusRoutes());
 
   return router;
 }

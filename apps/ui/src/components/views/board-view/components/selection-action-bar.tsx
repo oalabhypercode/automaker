@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
-import { Pencil, X, CheckSquare } from 'lucide-react';
+import { Pencil, X, CheckSquare, Trash2, Loader2, Cloud } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SelectionActionBarProps {
   selectedCount: number;
@@ -8,6 +9,10 @@ interface SelectionActionBarProps {
   onEdit: () => void;
   onClear: () => void;
   onSelectAll: () => void;
+  // Delete-Funktionalität
+  onDelete?: () => void;
+  syncedCount?: number;
+  isDeleting?: boolean;
 }
 
 export function SelectionActionBar({
@@ -16,6 +21,9 @@ export function SelectionActionBar({
   onEdit,
   onClear,
   onSelectAll,
+  onDelete,
+  syncedCount = 0,
+  isDeleting = false,
 }: SelectionActionBarProps) {
   if (selectedCount === 0) return null;
 
@@ -33,11 +41,48 @@ export function SelectionActionBar({
     >
       <span className="text-sm font-medium text-foreground">
         {selectedCount} feature{selectedCount !== 1 ? 's' : ''} selected
+        {syncedCount > 0 && (
+          <span className="ml-1.5 inline-flex items-center text-xs text-muted-foreground">
+            <Cloud className="w-3 h-3 mr-0.5" />
+            {syncedCount}
+          </span>
+        )}
       </span>
 
       <div className="h-4 w-px bg-border" />
 
       <div className="flex items-center gap-2">
+        {/* Delete Button */}
+        {onDelete && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onDelete}
+                disabled={isDeleting}
+                className={cn(
+                  'h-8 text-destructive hover:text-destructive hover:bg-destructive/10',
+                  isDeleting && 'opacity-50 cursor-not-allowed'
+                )}
+                data-testid="selection-delete-button"
+              >
+                {isDeleting ? (
+                  <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4 mr-1.5" />
+                )}
+                Delete
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {syncedCount > 0
+                ? `Delete ${selectedCount} feature(s) (${syncedCount} synced)`
+                : `Delete ${selectedCount} feature(s)`}
+            </TooltipContent>
+          </Tooltip>
+        )}
+
         <Button
           variant="default"
           size="sm"

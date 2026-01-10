@@ -455,6 +455,7 @@ export {
   createTicket as createTicketAction,
   updateTicket,
   deleteTicket,
+  deleteMultipleTickets,
   claimTicket,
   unclaimTicket,
   changeTicketStatus,
@@ -463,6 +464,8 @@ export {
   removeTicketLabel,
   // Phase 3.4: Public Ticket Action
   createPublicTicket,
+  // Phase 7.2: Batch Status Update
+  updateMultipleTicketsStatus,
   // Attachment Actions
   createTicketAttachments,
   // Event Actions
@@ -518,6 +521,11 @@ export type {
   DependencyWithTickets as ActionDependencyWithTickets,
   // Phase 3.4: Public Ticket Types
   CreatePublicTicketData,
+  // Phase 7.1: Batch Delete Types
+  BatchDeleteResult,
+  // Phase 7.2: Batch Status Types
+  BatchStatusResult,
+  StatusUpdate,
 } from './actions/index.js';
 
 // =============================================================================

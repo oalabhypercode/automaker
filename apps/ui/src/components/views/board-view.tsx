@@ -59,7 +59,8 @@ import {
   useSelectionMode,
 } from './board-view/hooks';
 import { SelectionActionBar } from './board-view/components';
-import { MassEditDialog } from './board-view/dialogs';
+import { MassEditDialog, DeleteSelectedDialog } from './board-view/dialogs';
+import { useSyncedOperations } from '@/hooks/use-synced-operations';
 
 // Stable empty array to avoid infinite loop in selector
 const EMPTY_WORKTREES: ReturnType<ReturnType<typeof useAppStore.getState>['getWorktrees']> = [];
@@ -169,6 +170,19 @@ export function BoardView() {
     exitSelectionMode,
   } = useSelectionMode();
   const [showMassEditDialog, setShowMassEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  // Synced operations hook for delete/status sync with Postgres
+  const {
+    deleteSyncedFeatures,
+    updateSyncedStatus,
+    isDeleting: isSyncDeleting,
+    filterSyncedFeatures,
+    isConnected: isSyncConnected,
+  } = useSyncedOperations({
+    projectPath: currentProject?.path ?? null,
+    projectName: currentProject?.name ?? '',
+  });
 
   // Search filter for Kanban cards
   const [searchQuery, setSearchQuery] = useState('');
@@ -479,6 +493,21 @@ export function BoardView() {
             updateFeature(featureId, updates);
           });
           toast.success(`Updated ${result.updatedCount} features`);
+
+          // If status was updated, sync to Postgres for synced features
+          if (updates.status && isSyncConnected) {
+            const selectedFeaturesForSync = hookFeatures.filter((f) =>
+              selectedFeatureIds.has(f.id)
+            );
+            const syncedFeatures = filterSyncedFeatures(selectedFeaturesForSync);
+            if (syncedFeatures.length > 0) {
+              // Fire and forget - status sync runs in background
+              updateSyncedStatus(syncedFeatures, updates.status).catch((err) => {
+                logger.error('Status sync failed:', err);
+              });
+            }
+          }
+
           exitSelectionMode();
         } else {
           toast.error('Failed to update some features', {
@@ -490,13 +519,59 @@ export function BoardView() {
         toast.error('Failed to update features');
       }
     },
-    [currentProject, selectedFeatureIds, updateFeature, exitSelectionMode]
+    [
+      currentProject,
+      selectedFeatureIds,
+      updateFeature,
+      exitSelectionMode,
+      isSyncConnected,
+      hookFeatures,
+      filterSyncedFeatures,
+      updateSyncedStatus,
+    ]
   );
 
   // Get selected features for mass edit dialog
   const selectedFeatures = useMemo(() => {
     return hookFeatures.filter((f) => selectedFeatureIds.has(f.id));
   }, [hookFeatures, selectedFeatureIds]);
+
+  // Get synced features from selection
+  const syncedSelectedFeatures = useMemo(() => {
+    return filterSyncedFeatures(selectedFeatures);
+  }, [selectedFeatures, filterSyncedFeatures]);
+
+  // Handler for bulk deleting selected features
+  const handleBulkDelete = useCallback(async () => {
+    if (!currentProject || selectedFeatures.length === 0) return;
+
+    try {
+      // First, delete synced features from Postgres if connected
+      if (isSyncConnected && syncedSelectedFeatures.length > 0) {
+        await deleteSyncedFeatures(syncedSelectedFeatures);
+      }
+
+      // Then delete all features locally
+      for (const feature of selectedFeatures) {
+        await handleDeleteFeature(feature.id);
+      }
+
+      toast.success(`Deleted ${selectedFeatures.length} feature(s)`);
+      setShowDeleteDialog(false);
+      exitSelectionMode();
+    } catch (error) {
+      logger.error('Bulk delete failed:', error);
+      toast.error('Failed to delete features');
+    }
+  }, [
+    currentProject,
+    selectedFeatures,
+    syncedSelectedFeatures,
+    isSyncConnected,
+    deleteSyncedFeatures,
+    handleDeleteFeature,
+    exitSelectionMode,
+  ]);
 
   // Get backlog feature IDs in current branch for "Select All"
   const allSelectableFeatureIds = useMemo(() => {
@@ -1227,6 +1302,9 @@ export function BoardView() {
           onEdit={() => setShowMassEditDialog(true)}
           onClear={clearSelection}
           onSelectAll={() => selectAll(allSelectableFeatureIds)}
+          onDelete={() => setShowDeleteDialog(true)}
+          syncedCount={syncedSelectedFeatures.length}
+          isDeleting={isSyncDeleting}
         />
       )}
 
@@ -1238,6 +1316,16 @@ export function BoardView() {
         onApply={handleBulkUpdate}
         showProfilesOnly={showProfilesOnly}
         aiProfiles={aiProfiles}
+      />
+
+      {/* Delete Selected Dialog */}
+      <DeleteSelectedDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleBulkDelete}
+        selectedFeatures={selectedFeatures}
+        syncedFeatures={syncedSelectedFeatures}
+        isDeleting={isSyncDeleting}
       />
 
       {/* Board Background Modal */}

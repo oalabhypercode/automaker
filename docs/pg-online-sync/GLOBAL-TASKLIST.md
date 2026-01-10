@@ -3,8 +3,8 @@
 ULTRATHINK
 
 > **Projekt:** Automaker Offline-First + Postgres Online-Sync
-> **Stand:** 2026-01-09
-> **Status:** ✅ Phase 6 ABGESCHLOSSEN - Sync-Buttons im Kanban-Board
+> **Stand:** 2026-01-10
+> **Status:** ✅ Phase 7 ABGESCHLOSSEN - Multi-Select Delete + Status-Sync
 
 ---
 
@@ -344,6 +344,12 @@ libs/
 | 2026-01-09 | 6.1   | **IMPLEMENTIERT:** ProjectSyncButtons aus online-sync-view.tsx entfernt (~208 Zeilen)                                                                                    |
 | 2026-01-09 | 6.2   | **IMPLEMENTIERT:** DatabaseSyncButtons in board-view.tsx integriert (~195 Zeilen) - Neue Komponente + BoardHeader Props                                                  |
 | 2026-01-09 | 6.3   | **IMPLEMENTIERT:** use-database-sync.ts Hook (~200 Zeilen) - Refactoring der Sync-Logik in dedizierten Hook, Komponente auf 133 Zeilen reduziert                         |
+| 2026-01-10 | 7.0   | 🗑️ **PHASE 7 PLANUNG:** Multi-Select Delete + Status-Sync - Übersicht erstellt                                                                                           |
+| 2026-01-10 | 7.1   | **IMPLEMENTIERT:** Server-Route für Batch-Delete (~90 Zeilen) - deleteMultipleTickets Action + delete.ts Route                                                           |
+| 2026-01-10 | 7.2   | **IMPLEMENTIERT:** Server-Route für Status-Update (~140 Zeilen) - updateMultipleTicketsStatus Action + status.ts Route                                                   |
+| 2026-01-10 | 7.3   | **IMPLEMENTIERT:** UI Hook für Delete/Status-Sync (~250 Zeilen) - use-synced-operations.ts mit deleteSyncedFeatures + updateSyncedStatus                                 |
+| 2026-01-10 | 7.4   | **IMPLEMENTIERT:** SelectionActionBar + Delete-Confirmation (~240 Zeilen) - Trash-Button, Cloud-Icon für synced Count, DeleteSelectedDialog mit Warning                  |
+| 2026-01-10 | 7.5   | **IMPLEMENTIERT:** Integration in board-view.tsx (~100 Zeilen) - useSyncedOperations Hook, handleBulkDelete, Status-Sync in handleBulkUpdate                             |
 
 ---
 
@@ -415,9 +421,31 @@ libs/
 
 ---
 
+### Phase 7: ✅ Multi-Select Delete + Status-Sync ABGESCHLOSSEN
+
+> **🎉 GELÖST:** Multi-Select Delete und Status-Sync vollständig implementiert!
+>
+> - Trash-Button in SelectionActionBar für Multi-Delete
+> - Synced Features werden auch aus Postgres DB gelöscht (soft-delete)
+> - Status-Änderungen werden automatisch zur DB synchronisiert
+> - Delete-Confirmation Dialog mit Warning für synced Features
+
+| #   | Planung                                  | Status           | Datei                                     |
+| --- | ---------------------------------------- | ---------------- | ----------------------------------------- |
+| 7.0 | Übersicht & Planung                      | ✅ Implementiert | `tasks/phase-7.0-synced-delete-status.md` |
+| 7.1 | Server-Route für Batch-Delete            | ✅ Implementiert | -                                         |
+| 7.2 | Server-Route für Status-Update           | ✅ Implementiert | -                                         |
+| 7.3 | UI Hook für Delete/Status-Sync           | ✅ Implementiert | -                                         |
+| 7.4 | SelectionActionBar + Delete-Confirmation | ✅ Implementiert | -                                         |
+| 7.5 | Integration in board-view.tsx            | ✅ Implementiert | -                                         |
+
+**Implementierte Zeilen:** ~680 Zeilen
+
+---
+
 ## 📌 Anleitung für nächsten Chat
 
-**🎉 Phase 0-6 VOLLSTÄNDIG ABGESCHLOSSEN!**
+**🎉 Phase 0-7 VOLLSTÄNDIG ABGESCHLOSSEN!**
 
 Das Postgres Online-Sync Feature ist komplett implementiert:
 
@@ -427,13 +455,15 @@ Das Postgres Online-Sync Feature ist komplett implementiert:
 - ✅ Server-Routen & UI-Integration (Phase 4)
 - ✅ Premium Glasmorphism-Design für Public Board (Phase 5)
 - ✅ Sync-Buttons im Kanban-Board (Phase 6)
+- ✅ **Phase 7: Multi-Select Delete + Status-Sync (ABGESCHLOSSEN)**
 
 **Referenz-Dateien für Wartung/Erweiterung:**
 
 1. `docs/pg-online-sync/GLOBAL-TASKLIST.md` - Diese Datei (Gesamtübersicht)
-2. `apps/ui/src/hooks/use-database-sync.ts` - Sync-Hook
-3. `apps/ui/src/components/views/board-view/database-sync-buttons.tsx` - Sync-Buttons
-4. `libs/pg-sync/` - Postgres Sync Library
+2. `apps/ui/src/hooks/use-database-sync.ts` - Sync-Hook (Pull/Push)
+3. `apps/ui/src/hooks/use-synced-operations.ts` - Delete/Status-Sync Hook
+4. `apps/ui/src/components/views/board-view/database-sync-buttons.tsx` - Sync-Buttons
+5. `libs/pg-sync/` - Postgres Sync Library
 
 ---
 

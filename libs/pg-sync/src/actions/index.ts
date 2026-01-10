@@ -68,6 +68,7 @@ export {
   createTicket,
   updateTicket,
   deleteTicket,
+  deleteMultipleTickets,
   claimTicket,
   unclaimTicket,
   changeTicketStatus,
@@ -76,6 +77,8 @@ export {
   removeTicketLabel,
   // Phase 3.4: Public Ticket Action
   createPublicTicket,
+  // Phase 7.2: Batch Status Update
+  updateMultipleTicketsStatus,
   type CreateTicketData,
   type UpdateTicketData,
   type TicketStatusType,
@@ -83,6 +86,11 @@ export {
   type EventTypeType,
   // Phase 3.4: Public Ticket Types
   type CreatePublicTicketData,
+  // Phase 7.1: Batch Delete Types
+  type BatchDeleteResult,
+  // Phase 7.2: Batch Status Types
+  type BatchStatusResult,
+  type StatusUpdate,
 } from './ticket-actions.js';
 
 // =============================================================================
