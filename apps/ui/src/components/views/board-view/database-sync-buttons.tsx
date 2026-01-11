@@ -7,9 +7,12 @@
  * @see docs/pg-online-sync/tasks/phase-6.3-simplified-sync.md
  */
 
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Loader2, CloudOff } from 'lucide-react';
+import { Download, Upload, Loader2, CloudOff, CloudUpload } from 'lucide-react';
 import { useDatabaseSync } from '@/hooks/use-database-sync';
+import { useSeedLocalProjects } from '@/hooks/use-online-projects';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface DatabaseSyncButtonsProps {
@@ -39,26 +42,9 @@ export function DatabaseSyncButtons({
     );
   }
 
-  // No matching project - show disabled state with tooltip
+  // No matching project - show "Connect to DB" button
   if (!isConnected) {
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/50 border border-border/50">
-              <CloudOff className="w-4 h-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Not connected</span>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Project not connected to database.</p>
-            <p className="text-xs text-muted-foreground">
-              Visit Online Sync to connect this project.
-            </p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
+    return <ConnectToDbButton projectPath={projectPath} projectName={projectName} />;
   }
 
   return (
@@ -116,6 +102,84 @@ export function DatabaseSyncButtons({
           </TooltipContent>
         </Tooltip>
       </div>
+    </TooltipProvider>
+  );
+}
+
+/**
+ * Button to connect/seed the current project to the database
+ */
+function ConnectToDbButton({
+  projectPath,
+  projectName,
+}: {
+  projectPath: string | null;
+  projectName: string;
+}) {
+  const [isConnecting, setIsConnecting] = useState(false);
+  const seedLocalProjects = useSeedLocalProjects();
+
+  const handleConnect = async () => {
+    if (!projectPath || !projectName) {
+      toast.error('Kein Projekt ausgewählt');
+      return;
+    }
+
+    setIsConnecting(true);
+    try {
+      const result = await seedLocalProjects.mutateAsync({
+        projects: [{ name: projectName, path: projectPath }],
+        includeTickets: true,
+      });
+
+      if (result.success) {
+        const { summary } = result;
+        if (summary.projectsCreated > 0) {
+          toast.success(`Projekt "${projectName}" zur Datenbank hinzugefügt`, {
+            description: `${summary.ticketsCreated} Ticket(s) importiert`,
+          });
+          // Force a reload to update the connection status
+          window.location.reload();
+        } else {
+          toast.info('Projekt bereits in Datenbank vorhanden');
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      toast.error('Verbindung fehlgeschlagen', {
+        description: error instanceof Error ? error.message : 'Unbekannter Fehler',
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleConnect}
+            disabled={isConnecting || !projectPath}
+            className="h-8 px-2.5 bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20 hover:border-amber-500/50 hover:shadow-[0_0_15px_-3px_rgba(245,158,11,0.5)] transition-all"
+          >
+            {isConnecting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <CloudUpload className="w-4 h-4" />
+            )}
+            <span className="ml-1.5 text-xs">Connect</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Mit Datenbank verbinden</p>
+          <p className="text-xs text-muted-foreground">
+            Projekt zur Postgres-DB hinzufügen und Tickets importieren
+          </p>
+        </TooltipContent>
+      </Tooltip>
     </TooltipProvider>
   );
 }

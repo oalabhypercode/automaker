@@ -19,8 +19,8 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { relations, type InferSelectModel, type InferInsertModel, sql } from 'drizzle-orm';
-import { projects } from './projects.ts';
-import { users } from './users.ts';
+import { projects } from './projects.js';
+import { users } from './users.js';
 
 // =============================================================================
 // 🎭 ENUMS

@@ -132,6 +132,44 @@ export function OnlineSyncView() {
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-4xl mx-auto space-y-4">
+          {/* Import Local Projects Button - always visible when there are local projects */}
+          {hasLocalProjects && projects && projects.length > 0 && (
+            <Card className="border-dashed">
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex -space-x-1">
+                      {localProjects.slice(0, 3).map((project) => (
+                        <Badge key={project.id} variant="outline" className="text-xs">
+                          {project.name}
+                        </Badge>
+                      ))}
+                      {localProjects.length > 3 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{localProjects.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      {localProjects.length} local project(s) available
+                    </span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleSeedLocalProjects}
+                    disabled={seedLocalProjects.isPending}
+                  >
+                    {seedLocalProjects.isPending && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Import to Database
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {!projects || projects.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">

@@ -18,7 +18,7 @@ export {
   type PublicBoardSettings,
   type DbProject,
   type DbNewProject,
-} from './projects.ts';
+} from './projects.js';
 
 // =============================================================================
 // 👤 USERS
@@ -35,7 +35,7 @@ export {
   type DbNewUser,
   type DbProjectMember,
   type DbNewProjectMember,
-} from './users.ts';
+} from './users.js';
 
 // =============================================================================
 // 🎫 TICKETS
@@ -66,7 +66,7 @@ export {
   type DbNewTicketEvent,
   type DbTicketAttachment,
   type DbNewTicketAttachment,
-} from './tickets.ts';
+} from './tickets.js';
 
 // =============================================================================
 // 🔄 SYNC
@@ -82,14 +82,14 @@ export {
   type DbNewSyncState,
   type DbOutboxItem,
   type DbNewOutboxItem,
-} from './sync.ts';
+} from './sync.js';
 
 // =============================================================================
 // 📊 SCHEMA OBJECT (für Drizzle Client)
 // =============================================================================
 
-import { projects, projectsRelations } from './projects.ts';
-import { users, usersRelations, projectMembers, projectMembersRelations } from './users.ts';
+import { projects, projectsRelations } from './projects.js';
+import { users, usersRelations, projectMembers, projectMembersRelations } from './users.js';
 import {
   tickets,
   ticketsRelations,
@@ -99,8 +99,8 @@ import {
   ticketAttachmentsRelations,
   ticketDependencies,
   ticketDependenciesRelations,
-} from './tickets.ts';
-import { syncStates, syncStatesRelations, outboxItems } from './sync.ts';
+} from './tickets.js';
+import { syncStates, syncStatesRelations, outboxItems } from './sync.js';
 
 /**
  * Komplettes Schema-Objekt für Drizzle Client
