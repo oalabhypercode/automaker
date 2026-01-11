@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Pencil, X, CheckSquare, Trash2, Loader2, Cloud } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SelectionActionBarProps {
   selectedCount: number;
@@ -54,33 +54,35 @@ export function SelectionActionBar({
       <div className="flex items-center gap-2">
         {/* Delete Button */}
         {onDelete && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onDelete}
-                disabled={isDeleting}
-                className={cn(
-                  'h-8 text-destructive hover:text-destructive hover:bg-destructive/10',
-                  isDeleting && 'opacity-50 cursor-not-allowed'
-                )}
-                data-testid="selection-delete-button"
-              >
-                {isDeleting ? (
-                  <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                ) : (
-                  <Trash2 className="w-4 h-4 mr-1.5" />
-                )}
-                Delete
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {syncedCount > 0
-                ? `Delete ${selectedCount} feature(s) (${syncedCount} synced)`
-                : `Delete ${selectedCount} feature(s)`}
-            </TooltipContent>
-          </Tooltip>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onDelete}
+                  disabled={isDeleting}
+                  className={cn(
+                    'h-8 text-destructive hover:text-destructive hover:bg-destructive/10',
+                    isDeleting && 'opacity-50 cursor-not-allowed'
+                  )}
+                  data-testid="selection-delete-button"
+                >
+                  {isDeleting ? (
+                    <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4 mr-1.5" />
+                  )}
+                  Delete
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {syncedCount > 0
+                  ? `Delete ${selectedCount} feature(s) (${syncedCount} synced)`
+                  : `Delete ${selectedCount} feature(s)`}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
 
         <Button
