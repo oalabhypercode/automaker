@@ -25,6 +25,7 @@ import {
   createProjectAction,
   createTicketAction,
   type UpdatePublicBoardSettingsData,
+  type DbProject,
 } from '@automaker/pg-sync';
 import { createPullRoutes } from './pull.js';
 import { createPushRoutes } from './push.js';
@@ -234,7 +235,7 @@ export function createPgSyncRoutes(settingsService?: SettingsService) {
     try {
       const projects = await findAllProjects({ includeDeleted: false });
 
-      const projectsWithSettings = projects.map((project) => {
+      const projectsWithSettings = projects.map((project: DbProject) => {
         const settings = project.settings as Record<string, unknown> | null;
         const publicSettings = settings?.publicSettings as Record<string, unknown> | undefined;
 

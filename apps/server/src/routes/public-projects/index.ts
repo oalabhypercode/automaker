@@ -10,6 +10,7 @@ import {
   findTicketAttachmentsByTicketIds,
   type TicketAttachmentData,
   type CreateTicketAttachmentData,
+  type PublicTicketData,
 } from '@automaker/pg-sync';
 import jwt from 'jsonwebtoken';
 import {
@@ -376,7 +377,7 @@ export function createPublicProjectsRoutes() {
         visibleStatuses: project.publicSettings.visibleStatuses,
       });
 
-      const ticketIds = tickets.map((ticket) => ticket.id);
+      const ticketIds = tickets.map((ticket: PublicTicketData) => ticket.id);
       const attachmentsByTicket = new Map<string, PublicTicketAttachmentResponse[]>();
 
       if (ticketIds.length > 0) {
@@ -410,7 +411,7 @@ export function createPublicProjectsRoutes() {
 
       res.json({
         project,
-        tickets: tickets.map((ticket) => {
+        tickets: tickets.map((ticket: PublicTicketData) => {
           const parsed = parsePublicTicketDescription(ticket.description);
           return {
             ...ticket,
